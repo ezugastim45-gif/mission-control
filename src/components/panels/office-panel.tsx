@@ -1095,6 +1095,8 @@ export function OfficePanel() {
 
     prevStatusRef.current = next
 
+    const createdTimers: ReturnType<typeof setTimeout>[] = []
+
     if (toAnimate.length > 0) {
       setTransitioningAgentIds((current) => {
         const updated = new Set(current)
@@ -1114,12 +1116,12 @@ export function OfficePanel() {
           transitionTimersRef.current.delete(id)
         }, 2200)
         transitionTimersRef.current.set(id, timer)
+        createdTimers.push(timer)
       }
     }
 
     return () => {
-      transitionTimersRef.current.forEach(clearTimeout)
-      transitionTimersRef.current.clear()
+      createdTimers.forEach(clearTimeout)
     }
   }, [displayAgents])
 
