@@ -674,6 +674,7 @@ export function SuperAdminPanel() {
               </label>
               <Button
                 onClick={createTenant}
+                aria-label={t('createAndQueue')}
               >
                 {t('createAndQueue')}
               </Button>
@@ -1028,6 +1029,7 @@ export function SuperAdminPanel() {
                     type="radio"
                     checked={decommissionDialog.dryRun}
                     onChange={() => setDecommissionDialog((prev) => ({ ...prev, dryRun: true, confirmText: '' }))}
+                    aria-label={t('dryRunRecommended')}
                   />
                   <span>
                     <span className="block font-medium">{t('dryRunRecommended')}</span>
@@ -1039,6 +1041,7 @@ export function SuperAdminPanel() {
                     type="radio"
                     checked={!decommissionDialog.dryRun}
                     onChange={() => setDecommissionDialog((prev) => ({ ...prev, dryRun: false }))}
+                    aria-label={t('liveExecution')}
                   />
                   <span>
                     <span className="block font-medium">{t('liveExecution')}</span>
@@ -1057,6 +1060,7 @@ export function SuperAdminPanel() {
                       removeLinuxUser: e.target.checked,
                       removeStateDirs: e.target.checked ? false : prev.removeStateDirs,
                     }))}
+                    aria-label={t('removeLinuxUser')}
                   />
                   <span>
                     <span className="block font-medium">{t('removeLinuxUser')}</span>
@@ -1069,6 +1073,7 @@ export function SuperAdminPanel() {
                     checked={decommissionDialog.removeStateDirs}
                     disabled={decommissionDialog.removeLinuxUser}
                     onChange={(e) => setDecommissionDialog((prev) => ({ ...prev, removeStateDirs: e.target.checked }))}
+                    aria-label={t('removeStateDirs')}
                   />
                   <span>
                     <span className="block font-medium">{t('removeStateDirs')}</span>

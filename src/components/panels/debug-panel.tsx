@@ -317,6 +317,7 @@ function ApiCallTab() {
             onChange={(e) => setPath(e.target.value)}
             placeholder="/api/"
             className="h-8 w-full px-2 rounded border border-border bg-secondary text-foreground text-sm font-mono"
+            aria-label={t('path')}
           />
         </div>
 
@@ -334,6 +335,7 @@ function ApiCallTab() {
             rows={5}
             placeholder='{"key": "value"}'
             className="w-full px-3 py-2 rounded border border-border bg-secondary text-foreground text-xs font-mono resize-y"
+            aria-label={t('bodyJson')}
           />
         </div>
       )}

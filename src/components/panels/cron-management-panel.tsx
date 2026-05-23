@@ -1476,6 +1476,7 @@ export function CronManagementPanel() {
                   list="cron-model-suggestions"
                   placeholder="anthropic/claude-sonnet-4-20250514"
                   className={`w-full px-3 py-2 border rounded-md bg-background text-foreground font-mono text-sm ${formErrors.model ? 'border-red-500' : 'border-border'}`}
+                  aria-label={t('fieldModelOptional')}
                 />
                 <datalist id="cron-model-suggestions">
                   {availableModels.map((modelName) => (
