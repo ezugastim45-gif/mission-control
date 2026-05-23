@@ -230,9 +230,7 @@ export async function ensureLabels(
   repo: string,
   labels: Array<{ name: string; color: string; description?: string }>
 ): Promise<void> {
-  for (const label of labels) {
-    await createLabel(repo, label)
-  }
+  await Promise.all(labels.map(label => createLabel(repo, label)))
 }
 
 /**

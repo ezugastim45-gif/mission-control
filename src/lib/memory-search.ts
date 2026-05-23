@@ -58,19 +58,20 @@ export async function rebuildIndex(baseDir: string, allowedPrefixes: string[]): 
   const db = getDatabase()
   ensureFtsTable(db)
 
-  const files: MemoryFileInfo[] = []
+  let files: MemoryFileInfo[] = []
   if (allowedPrefixes.length) {
-    for (const prefix of allowedPrefixes) {
-      const folder = prefix.replace(/\/$/, '')
-      const fullPath = join(baseDir, folder)
-      if (!existsSync(fullPath)) continue
-      const prefixFiles = await scanMemoryFiles(fullPath, { extensions: ['.md', '.txt'] })
-      for (const f of prefixFiles) {
-        files.push({ ...f, path: join(folder, f.path) })
-      }
-    }
+    const perPrefix = await Promise.all(
+      allowedPrefixes
+        .map(prefix => prefix.replace(/\/$/, ''))
+        .filter(folder => existsSync(join(baseDir, folder)))
+        .map(async (folder) => {
+          const prefixFiles = await scanMemoryFiles(join(baseDir, folder), { extensions: ['.md', '.txt'] })
+          return prefixFiles.map(f => ({ ...f, path: join(folder, f.path) }))
+        })
+    )
+    files = perPrefix.flat()
   } else {
-    files.push(...await scanMemoryFiles(baseDir, { extensions: ['.md', '.txt'] }))
+    files = await scanMemoryFiles(baseDir, { extensions: ['.md', '.txt'] })
   }
 
   const insertStmt = db.prepare('INSERT INTO memory_fts (path, title, content) VALUES (?, ?, ?)')

@@ -211,32 +211,38 @@ export async function buildLinkGraph(baseDir: string, existingFiles?: MemoryFile
     }
   }
 
-  // First pass: extract links from each file
-  for (const f of files) {
-    try {
-      const content = await readFile(join(baseDir, f.path), 'utf-8')
-      const wikiLinks = extractWikiLinks(content)
-      const schema = extractSchema(content)
-      const outgoing: string[] = []
+  // First pass: extract links from each file (parallel)
+  const nodeEntries = await Promise.all(
+    files.map(async (f): Promise<[string, LinkGraphNode] | null> => {
+      try {
+        const content = await readFile(join(baseDir, f.path), 'utf-8')
+        const wikiLinks = extractWikiLinks(content)
+        const schema = extractSchema(content)
+        const outgoing: string[] = []
 
-      for (const link of wikiLinks) {
-        const resolved = stemToPath.get(link.target)
-        if (resolved && resolved !== f.path) {
-          outgoing.push(resolved)
+        for (const link of wikiLinks) {
+          const resolved = stemToPath.get(link.target)
+          if (resolved && resolved !== f.path) {
+            outgoing.push(resolved)
+          }
         }
-      }
 
-      nodes[f.path] = {
-        path: f.path,
-        name: f.name,
-        outgoing: [...new Set(outgoing)],
-        incoming: [],
-        wikiLinks,
-        schema,
+        return [f.path, {
+          path: f.path,
+          name: f.name,
+          outgoing: [...new Set(outgoing)],
+          incoming: [],
+          wikiLinks,
+          schema,
+        }]
+      } catch {
+        // skip unreadable files
+        return null
       }
-    } catch {
-      // skip unreadable files
-    }
+    })
+  )
+  for (const entry of nodeEntries) {
+    if (entry) nodes[entry[0]] = entry[1]
   }
 
   // Second pass: compute incoming links
@@ -289,20 +295,28 @@ export async function runHealthDiagnostics(baseDir: string): Promise<HealthRepor
 
   // 1. Schema compliance
   {
-    let filesWithSchema = 0
-    let validSchemas = 0
-    const schemaIssues: string[] = []
-    for (const f of files) {
-      try {
-        const content = await readFile(join(baseDir, f.path), 'utf-8')
-        const result = validateSchema(content)
-        if (result.schema) {
-          filesWithSchema++
-          if (result.valid) validSchemas++
-          else schemaIssues.push(`${f.path}: ${result.errors.join(', ')}`)
+    type SchemaResult = { hasSchema: false } | { hasSchema: true; valid: boolean; issue: string | null }
+    const schemaResults = await Promise.all(
+      files.map(async (f): Promise<SchemaResult> => {
+        try {
+          const content = await readFile(join(baseDir, f.path), 'utf-8')
+          const result = validateSchema(content)
+          if (!result.schema) return { hasSchema: false }
+          return {
+            hasSchema: true,
+            valid: result.valid,
+            issue: result.valid ? null : `${f.path}: ${result.errors.join(', ')}`,
+          }
+        } catch {
+          return { hasSchema: false }
         }
-      } catch { /* skip */ }
-    }
+      })
+    )
+    const filesWithSchema = schemaResults.filter(r => r.hasSchema).length
+    const validSchemas = schemaResults.filter(r => r.hasSchema && (r as Extract<SchemaResult, { hasSchema: true }>).valid).length
+    const schemaIssues = schemaResults
+      .filter((r): r is Extract<SchemaResult, { hasSchema: true }> => r.hasSchema && (r as Extract<SchemaResult, { hasSchema: true }>).issue !== null)
+      .map(r => r.issue!)
     const score = filesWithSchema === 0 ? 100 : Math.round((validSchemas / filesWithSchema) * 100)
     categories.push({
       name: 'Schema Compliance',
@@ -450,16 +464,18 @@ export async function runHealthDiagnostics(baseDir: string): Promise<HealthRepor
 
   // 8. Description quality (frontmatter description field)
   {
-    let withDescription = 0
-    for (const f of files) {
-      try {
-        const content = await readFile(join(baseDir, f.path), 'utf-8')
-        const fmMatch = content.match(/^---\n([\s\S]*?)\n---/)
-        if (fmMatch && /description:\s*.+/.test(fmMatch[1])) {
-          withDescription++
+    const descFlags = await Promise.all(
+      files.map(async (f): Promise<boolean> => {
+        try {
+          const content = await readFile(join(baseDir, f.path), 'utf-8')
+          const fmMatch = content.match(/^---\n([\s\S]*?)\n---/)
+          return !!(fmMatch && /description:\s*.+/.test(fmMatch[1]))
+        } catch {
+          return false
         }
-      } catch { /* skip */ }
-    }
+      })
+    )
+    const withDescription = descFlags.filter(Boolean).length
     const score = files.length > 0 ? Math.round((withDescription / files.length) * 100) : 100
     categories.push({
       name: 'Description Quality',
@@ -509,24 +525,33 @@ export async function generateMOCs(baseDir: string): Promise<MOCGroup[]> {
   const graph = await buildLinkGraph(baseDir)
   const dirMap = new Map<string, MOCEntry[]>()
 
-  for (const node of Object.values(graph.nodes)) {
-    const dir = dirname(node.path)
-    const dirKey = dir === '.' ? '(root)' : dir
-    if (!dirMap.has(dirKey)) dirMap.set(dirKey, [])
+  const entries = await Promise.all(
+    Object.values(graph.nodes).map(async (node): Promise<{ dirKey: string; entry: MOCEntry }> => {
+      const dir = dirname(node.path)
+      const dirKey = dir === '.' ? '(root)' : dir
 
-    // Extract title from first H1 or filename
-    let title = basename(node.path, extname(node.path))
-    try {
-      const content = await readFile(join(baseDir, node.path), 'utf-8')
-      const h1Match = content.match(/^#\s+(.+)/m)
-      if (h1Match) title = h1Match[1].trim()
-    } catch { /* use filename */ }
+      // Extract title from first H1 or filename
+      let title = basename(node.path, extname(node.path))
+      try {
+        const content = await readFile(join(baseDir, node.path), 'utf-8')
+        const h1Match = content.match(/^#\s+(.+)/m)
+        if (h1Match) title = h1Match[1].trim()
+      } catch { /* use filename */ }
 
-    dirMap.get(dirKey)!.push({
-      title,
-      path: node.path,
-      linkCount: node.incoming.length + node.outgoing.length,
+      return {
+        dirKey,
+        entry: {
+          title,
+          path: node.path,
+          linkCount: node.incoming.length + node.outgoing.length,
+        },
+      }
     })
+  )
+
+  for (const { dirKey, entry } of entries) {
+    if (!dirMap.has(dirKey)) dirMap.set(dirKey, [])
+    dirMap.get(dirKey)!.push(entry)
   }
 
   // Sort entries within each group by connectivity (most linked first)

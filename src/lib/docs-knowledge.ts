@@ -90,37 +90,39 @@ export function isDocsPathAllowed(relativePath: string): boolean {
 
 async function buildTreeFrom(dirPath: string, relativeBase: string): Promise<DocsTreeNode[]> {
   const items = await readdir(dirPath, { withFileTypes: true })
-  const nodes: DocsTreeNode[] = []
 
-  for (const item of items) {
-    if (item.isSymbolicLink()) continue
-    const fullPath = join(dirPath, item.name)
-    const relativePath = normalizeRelativePath(join(relativeBase, item.name))
+  const settled = await Promise.allSettled(
+    items
+      .filter(item => !item.isSymbolicLink())
+      .map(async (item): Promise<DocsTreeNode | null> => {
+        const fullPath = join(dirPath, item.name)
+        const relativePath = normalizeRelativePath(join(relativeBase, item.name))
+        const info = await stat(fullPath)
+        if (item.isDirectory()) {
+          const children = await buildTreeFrom(fullPath, relativePath)
+          return {
+            path: relativePath,
+            name: item.name,
+            type: 'directory',
+            modified: info.mtime.getTime(),
+            children,
+          }
+        } else if (item.isFile()) {
+          return {
+            path: relativePath,
+            name: item.name,
+            type: 'file',
+            size: info.size,
+            modified: info.mtime.getTime(),
+          }
+        }
+        return null
+      })
+  )
 
-    try {
-      const info = await stat(fullPath)
-      if (item.isDirectory()) {
-        const children = await buildTreeFrom(fullPath, relativePath)
-        nodes.push({
-          path: relativePath,
-          name: item.name,
-          type: 'directory',
-          modified: info.mtime.getTime(),
-          children,
-        })
-      } else if (item.isFile()) {
-        nodes.push({
-          path: relativePath,
-          name: item.name,
-          type: 'file',
-          size: info.size,
-          modified: info.mtime.getTime(),
-        })
-      }
-    } catch {
-      // Ignore unreadable files
-    }
-  }
+  const nodes: DocsTreeNode[] = settled
+    .filter((r): r is PromiseFulfilledResult<DocsTreeNode | null> => r.status === 'fulfilled' && r.value !== null)
+    .map(r => r.value as DocsTreeNode)
 
   return nodes.sort((a, b) => {
     if (a.type !== b.type) return a.type === 'directory' ? -1 : 1
@@ -133,26 +135,25 @@ export async function getDocsTree(): Promise<DocsTreeNode[]> {
   if (!baseDir || !existsSync(baseDir)) return []
 
   const roots = allowedRoots(baseDir)
-  const tree: DocsTreeNode[] = []
 
-  for (const root of roots) {
-    const rootPath = join(baseDir, root)
-    try {
+  const settled = await Promise.allSettled(
+    roots.map(async (root): Promise<DocsTreeNode | null> => {
+      const rootPath = join(baseDir, root)
       const info = await stat(rootPath)
-      if (!info.isDirectory()) continue
-      tree.push({
+      if (!info.isDirectory()) return null
+      return {
         path: root,
         name: root,
         type: 'directory',
         modified: info.mtime.getTime(),
         children: await buildTreeFrom(rootPath, root),
-      })
-    } catch {
-      // Ignore unreadable roots
-    }
-  }
+      }
+    })
+  )
 
-  return tree
+  return settled
+    .filter((r): r is PromiseFulfilledResult<DocsTreeNode | null> => r.status === 'fulfilled' && r.value !== null)
+    .map(r => r.value as DocsTreeNode)
 }
 
 export async function readDocsContent(relativePath: string): Promise<{ content: string; size: number; modified: number; path: string }> {
@@ -218,26 +219,24 @@ export async function searchDocs(query: string, limit = 100): Promise<Array<{ pa
 
   const searchDir = async (fullDir: string, relativeDir: string) => {
     const items = await readdir(fullDir, { withFileTypes: true })
-    for (const item of items) {
-      if (item.isSymbolicLink()) continue
-      const itemFull = join(fullDir, item.name)
-      const itemRel = normalizeRelativePath(join(relativeDir, item.name))
-      if (item.isDirectory()) {
-        await searchDir(itemFull, itemRel)
-      } else if (item.isFile() && isSearchable(item.name.toLowerCase())) {
-        await searchFile(itemFull, itemRel)
-      }
-    }
+    await Promise.all(
+      items
+        .filter(item => !item.isSymbolicLink())
+        .map(async (item) => {
+          const itemFull = join(fullDir, item.name)
+          const itemRel = normalizeRelativePath(join(relativeDir, item.name))
+          if (item.isDirectory()) {
+            await searchDir(itemFull, itemRel)
+          } else if (item.isFile() && isSearchable(item.name.toLowerCase())) {
+            await searchFile(itemFull, itemRel)
+          }
+        })
+    )
   }
 
-  for (const root of roots) {
-    const rootPath = join(baseDir, root)
-    try {
-      await searchDir(rootPath, root)
-    } catch {
-      // Ignore unreadable roots
-    }
-  }
+  await Promise.allSettled(
+    roots.map(root => searchDir(join(baseDir, root), root))
+  )
 
   return results.sort((a, b) => b.matches - a.matches).slice(0, Math.max(1, Math.min(limit, 200)))
 }

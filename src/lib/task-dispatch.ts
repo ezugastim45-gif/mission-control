@@ -353,84 +353,87 @@ export async function reconcileDeferredTaskCompletions(options: {
   const tasks = db.prepare(query).all(...params) as DeferredCompletionTask[]
   let promoted = 0
 
-  for (const task of tasks) {
-    const metadata = safeParseMetadata(task.metadata)
-    if (metadata.async_state !== 'pending') continue
+  const promotionResults = await Promise.all(
+    tasks.map(async (task): Promise<boolean> => {
+      const metadata = safeParseMetadata(task.metadata)
+      if (metadata.async_state !== 'pending') return false
 
-    const runId = typeof metadata.dispatch_run_id === 'string' && metadata.dispatch_run_id.trim()
-      ? metadata.dispatch_run_id.trim()
-      : typeof metadata.dispatchRunId === 'string' && metadata.dispatchRunId.trim()
-        ? metadata.dispatchRunId.trim()
-        : typeof metadata.runId === 'string' && metadata.runId.trim()
-          ? metadata.runId.trim()
-          : null
-    if (!runId) continue
+      const runId = typeof metadata.dispatch_run_id === 'string' && metadata.dispatch_run_id.trim()
+        ? metadata.dispatch_run_id.trim()
+        : typeof metadata.dispatchRunId === 'string' && metadata.dispatchRunId.trim()
+          ? metadata.dispatchRunId.trim()
+          : typeof metadata.runId === 'string' && metadata.runId.trim()
+            ? metadata.runId.trim()
+            : null
+      if (!runId) return false
 
-    let completion: { complete: boolean; text: string | null }
-    try {
-      completion = await waitForRun(runId)
-    } catch (err) {
-      logger.warn({ err, taskId: task.id, runId }, 'Deferred task completion check failed')
-      continue
-    }
-    if (!completion.complete) continue
+      let completion: { complete: boolean; text: string | null }
+      try {
+        completion = await waitForRun(runId)
+      } catch (err) {
+        logger.warn({ err, taskId: task.id, runId }, 'Deferred task completion check failed')
+        return false
+      }
+      if (!completion.complete) return false
 
-    const recoveredText = completion.text?.trim() || recoverDeferredCompletionTextFromTranscript(task, metadata)
-    const resolution = recoveredText || 'Deferred agent run completed without textual output.'
-    const truncated = resolution.length > 10_000
-      ? resolution.substring(0, 10_000) + '\n\n[Response truncated at 10,000 characters]'
-      : resolution
-    const nextMetadata: Record<string, any> = {
-      ...metadata,
-      async_state: 'completed',
-      async_completed_at: now,
-    }
+      const recoveredText = completion.text?.trim() || recoverDeferredCompletionTextFromTranscript(task, metadata)
+      const resolution = recoveredText || 'Deferred agent run completed without textual output.'
+      const truncated = resolution.length > 10_000
+        ? resolution.substring(0, 10_000) + '\n\n[Response truncated at 10,000 characters]'
+        : resolution
+      const nextMetadata: Record<string, any> = {
+        ...metadata,
+        async_state: 'completed',
+        async_completed_at: now,
+      }
 
-    const update = db.prepare(`
-      UPDATE tasks
-      SET status = 'review',
-          outcome = 'success',
-          resolution = ?,
-          metadata = ?,
-          updated_at = ?
-      WHERE id = ?
-        AND workspace_id = ?
-        AND status = 'in_progress'
-    `).run(truncated, JSON.stringify(nextMetadata), now, task.id, task.workspace_id)
+      const update = db.prepare(`
+        UPDATE tasks
+        SET status = 'review',
+            outcome = 'success',
+            resolution = ?,
+            metadata = ?,
+            updated_at = ?
+        WHERE id = ?
+          AND workspace_id = ?
+          AND status = 'in_progress'
+      `).run(truncated, JSON.stringify(nextMetadata), now, task.id, task.workspace_id)
 
-    if (update.changes === 0) continue
+      if (update.changes === 0) return false
 
-    db.prepare(`
-      INSERT INTO comments (task_id, author, content, created_at, workspace_id)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(task.id, task.assigned_to || 'agent', truncated, now, task.workspace_id)
+      db.prepare(`
+        INSERT INTO comments (task_id, author, content, created_at, workspace_id)
+        VALUES (?, ?, ?, ?, ?)
+      `).run(task.id, task.assigned_to || 'agent', truncated, now, task.workspace_id)
 
-    eventBus.broadcast('task.status_changed', {
-      id: task.id,
-      status: 'review',
-      previous_status: 'in_progress',
+      eventBus.broadcast('task.status_changed', {
+        id: task.id,
+        status: 'review',
+        previous_status: 'in_progress',
+      })
+      eventBus.broadcast('task.updated', {
+        id: task.id,
+        status: 'review',
+        outcome: 'success',
+        assigned_to: task.assigned_to,
+        dispatch_session_id: nextMetadata.dispatch_session_id,
+        dispatch_run_id: nextMetadata.dispatch_run_id,
+      })
+
+      db_helpers.logActivity(
+        'task_agent_completed',
+        'task',
+        task.id,
+        task.assigned_to || 'agent',
+        `Deferred agent completed task "${task.title}" - awaiting review`,
+        { response_length: truncated.length, dispatch_session_id: nextMetadata.dispatch_session_id, dispatch_run_id: nextMetadata.dispatch_run_id },
+        task.workspace_id
+      )
+
+      return true
     })
-    eventBus.broadcast('task.updated', {
-      id: task.id,
-      status: 'review',
-      outcome: 'success',
-      assigned_to: task.assigned_to,
-      dispatch_session_id: nextMetadata.dispatch_session_id,
-      dispatch_run_id: nextMetadata.dispatch_run_id,
-    })
-
-    db_helpers.logActivity(
-      'task_agent_completed',
-      'task',
-      task.id,
-      task.assigned_to || 'agent',
-      `Deferred agent completed task "${task.title}" - awaiting review`,
-      { response_length: truncated.length, dispatch_session_id: nextMetadata.dispatch_session_id, dispatch_run_id: nextMetadata.dispatch_run_id },
-      task.workspace_id
-    )
-
-    promoted++
-  }
+  )
+  promoted = promotionResults.filter(Boolean).length
 
   return {
     ok: true,
@@ -941,149 +944,149 @@ export async function runAegisReviews(): Promise<{ ok: boolean; message: string 
     return { ok: true, message: 'No tasks awaiting review' }
   }
 
-  const results: Array<{ id: number; verdict: string; error?: string }> = []
-
-  for (const task of tasks) {
-    // Move to quality_review to prevent re-processing
-    db.prepare('UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?')
-      .run('quality_review', Math.floor(Date.now() / 1000), task.id)
-
-    eventBus.broadcast('task.status_changed', {
-      id: task.id,
-      status: 'quality_review',
-      previous_status: 'review',
-    })
-
-    try {
-      const prompt = buildReviewPrompt(task)
-      let agentResponse: AgentResponseParsed
-
-      if (!isGatewayAvailable() && isDirectDispatchAvailable()) {
-        // Direct API review — no gateway needed (Anthropic / OpenAI / local).
-        // Pass through agent_config so Aegis honors per-agent dispatchModel
-        // overrides and routes to the matching provider.
-        const reviewTask: DispatchableTask = {
-          id: task.id, title: task.title, description: task.description,
-          status: 'quality_review', priority: 'high', assigned_to: 'aegis',
-          workspace_id: task.workspace_id, agent_name: 'aegis', agent_id: 0,
-          agent_config: task.agent_config, ticket_prefix: task.ticket_prefix,
-          project_ticket_no: task.project_ticket_no, project_id: null,
-        }
-        agentResponse = await callDirectly(reviewTask, prompt)
-      } else {
-        // Resolve the gateway agent ID from config, falling back to assigned_to or default
-        const reviewAgent = resolveGatewayAgentIdForReview(task)
-
-        const invokeParams = {
-          message: prompt,
-          agentId: reviewAgent,
-          idempotencyKey: `aegis-review-${task.id}-${Date.now()}`,
-          deliver: false,
-        }
-        const finalPayload = await callOpenClawGateway<any>(
-          'agent',
-          invokeParams,
-          125_000,
-          { expectFinal: true },
-        )
-        agentResponse = parseAgentResponse(
-          finalPayload?.result ? JSON.stringify(finalPayload.result) : JSON.stringify(finalPayload)
-        )
-      }
-
-      if (!agentResponse.text) {
-        throw new Error('Aegis review returned empty response')
-      }
-
-      const verdict = parseReviewVerdict(agentResponse.text)
-
-      // Insert quality review record
-      db.prepare(`
-        INSERT INTO quality_reviews (task_id, reviewer, status, notes, workspace_id)
-        VALUES (?, 'aegis', ?, ?, ?)
-      `).run(task.id, verdict.status, verdict.notes, task.workspace_id)
-
-      if (verdict.status === 'approved') {
-        db.prepare('UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?')
-          .run('done', Math.floor(Date.now() / 1000), task.id)
-
-        eventBus.broadcast('task.status_changed', {
-          id: task.id,
-          status: 'done',
-          previous_status: 'quality_review',
-        })
-        syncAndEscalateIfFailed(task, 'done')
-      } else {
-        // Rejected: check dispatch_attempts to decide next status
-        const now = Math.floor(Date.now() / 1000)
-        const currentAttempts = (db.prepare('SELECT dispatch_attempts FROM tasks WHERE id = ?').get(task.id) as { dispatch_attempts: number } | undefined)?.dispatch_attempts ?? 0
-        const newAttempts = currentAttempts + 1
-        const maxAegisRetries = 3
-
-        if (newAttempts >= maxAegisRetries) {
-          // Too many rejections — move to failed
-          db.prepare('UPDATE tasks SET status = ?, error_message = ?, dispatch_attempts = ?, updated_at = ? WHERE id = ?')
-            .run('failed', `Aegis rejected ${newAttempts} times. Last: ${verdict.notes}`, newAttempts, now, task.id)
-
-          eventBus.broadcast('task.status_changed', {
-            id: task.id,
-            status: 'failed',
-            previous_status: 'quality_review',
-            error_message: `Aegis rejected ${newAttempts} times`,
-            reason: 'max_aegis_retries_exceeded',
-          })
-          syncAndEscalateIfFailed(task, 'failed', `Aegis rejected ${newAttempts} times`, newAttempts)
-        } else {
-          // Requeue to assigned for re-dispatch with feedback
-          db.prepare('UPDATE tasks SET status = ?, error_message = ?, dispatch_attempts = ?, updated_at = ? WHERE id = ?')
-            .run('assigned', `Aegis rejected: ${verdict.notes}`, newAttempts, now, task.id)
-
-          eventBus.broadcast('task.status_changed', {
-            id: task.id,
-            status: 'assigned',
-            previous_status: 'quality_review',
-            error_message: `Aegis rejected: ${verdict.notes}`,
-            reason: 'aegis_rejection',
-          })
-          syncAndEscalateIfFailed(task, 'assigned')
-        }
-
-        // Add rejection as a comment so the agent sees it on next dispatch
-        db.prepare(`
-          INSERT INTO comments (task_id, author, content, created_at, workspace_id)
-          VALUES (?, 'aegis', ?, ?, ?)
-        `).run(task.id, `Quality Review Rejected (attempt ${newAttempts}/${maxAegisRetries}):\n${verdict.notes}`, now, task.workspace_id)
-      }
-
-      db_helpers.logActivity(
-        'aegis_review',
-        'task',
-        task.id,
-        'aegis',
-        `Aegis ${verdict.status} task "${task.title}": ${verdict.notes.substring(0, 200)}`,
-        { verdict: verdict.status, notes: verdict.notes },
-        task.workspace_id
-      )
-
-      results.push({ id: task.id, verdict: verdict.status })
-      logger.info({ taskId: task.id, verdict: verdict.status }, 'Aegis review completed')
-    } catch (err: any) {
-      const errorMsg = err.message || 'Unknown error'
-      logger.error({ taskId: task.id, err }, 'Aegis review failed')
-
-      // Revert to review so it can be retried
+  const results: Array<{ id: number; verdict: string; error?: string }> = await Promise.all(
+    tasks.map(async (task): Promise<{ id: number; verdict: string; error?: string }> => {
+      // Move to quality_review to prevent re-processing
       db.prepare('UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?')
-        .run('review', Math.floor(Date.now() / 1000), task.id)
+        .run('quality_review', Math.floor(Date.now() / 1000), task.id)
 
       eventBus.broadcast('task.status_changed', {
         id: task.id,
-        status: 'review',
-        previous_status: 'quality_review',
+        status: 'quality_review',
+        previous_status: 'review',
       })
 
-      results.push({ id: task.id, verdict: 'error', error: errorMsg.substring(0, 100) })
-    }
-  }
+      try {
+        const prompt = buildReviewPrompt(task)
+        let agentResponse: AgentResponseParsed
+
+        if (!isGatewayAvailable() && isDirectDispatchAvailable()) {
+          // Direct API review — no gateway needed (Anthropic / OpenAI / local).
+          // Pass through agent_config so Aegis honors per-agent dispatchModel
+          // overrides and routes to the matching provider.
+          const reviewTask: DispatchableTask = {
+            id: task.id, title: task.title, description: task.description,
+            status: 'quality_review', priority: 'high', assigned_to: 'aegis',
+            workspace_id: task.workspace_id, agent_name: 'aegis', agent_id: 0,
+            agent_config: task.agent_config, ticket_prefix: task.ticket_prefix,
+            project_ticket_no: task.project_ticket_no, project_id: null,
+          }
+          agentResponse = await callDirectly(reviewTask, prompt)
+        } else {
+          // Resolve the gateway agent ID from config, falling back to assigned_to or default
+          const reviewAgent = resolveGatewayAgentIdForReview(task)
+
+          const invokeParams = {
+            message: prompt,
+            agentId: reviewAgent,
+            idempotencyKey: `aegis-review-${task.id}-${Date.now()}`,
+            deliver: false,
+          }
+          const finalPayload = await callOpenClawGateway<any>(
+            'agent',
+            invokeParams,
+            125_000,
+            { expectFinal: true },
+          )
+          agentResponse = parseAgentResponse(
+            finalPayload?.result ? JSON.stringify(finalPayload.result) : JSON.stringify(finalPayload)
+          )
+        }
+
+        if (!agentResponse.text) {
+          throw new Error('Aegis review returned empty response')
+        }
+
+        const verdict = parseReviewVerdict(agentResponse.text)
+
+        // Insert quality review record
+        db.prepare(`
+          INSERT INTO quality_reviews (task_id, reviewer, status, notes, workspace_id)
+          VALUES (?, 'aegis', ?, ?, ?)
+        `).run(task.id, verdict.status, verdict.notes, task.workspace_id)
+
+        if (verdict.status === 'approved') {
+          db.prepare('UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?')
+            .run('done', Math.floor(Date.now() / 1000), task.id)
+
+          eventBus.broadcast('task.status_changed', {
+            id: task.id,
+            status: 'done',
+            previous_status: 'quality_review',
+          })
+          syncAndEscalateIfFailed(task, 'done')
+        } else {
+          // Rejected: check dispatch_attempts to decide next status
+          const now = Math.floor(Date.now() / 1000)
+          const currentAttempts = (db.prepare('SELECT dispatch_attempts FROM tasks WHERE id = ?').get(task.id) as { dispatch_attempts: number } | undefined)?.dispatch_attempts ?? 0
+          const newAttempts = currentAttempts + 1
+          const maxAegisRetries = 3
+
+          if (newAttempts >= maxAegisRetries) {
+            // Too many rejections — move to failed
+            db.prepare('UPDATE tasks SET status = ?, error_message = ?, dispatch_attempts = ?, updated_at = ? WHERE id = ?')
+              .run('failed', `Aegis rejected ${newAttempts} times. Last: ${verdict.notes}`, newAttempts, now, task.id)
+
+            eventBus.broadcast('task.status_changed', {
+              id: task.id,
+              status: 'failed',
+              previous_status: 'quality_review',
+              error_message: `Aegis rejected ${newAttempts} times`,
+              reason: 'max_aegis_retries_exceeded',
+            })
+            syncAndEscalateIfFailed(task, 'failed', `Aegis rejected ${newAttempts} times`, newAttempts)
+          } else {
+            // Requeue to assigned for re-dispatch with feedback
+            db.prepare('UPDATE tasks SET status = ?, error_message = ?, dispatch_attempts = ?, updated_at = ? WHERE id = ?')
+              .run('assigned', `Aegis rejected: ${verdict.notes}`, newAttempts, now, task.id)
+
+            eventBus.broadcast('task.status_changed', {
+              id: task.id,
+              status: 'assigned',
+              previous_status: 'quality_review',
+              error_message: `Aegis rejected: ${verdict.notes}`,
+              reason: 'aegis_rejection',
+            })
+            syncAndEscalateIfFailed(task, 'assigned')
+          }
+
+          // Add rejection as a comment so the agent sees it on next dispatch
+          db.prepare(`
+            INSERT INTO comments (task_id, author, content, created_at, workspace_id)
+            VALUES (?, 'aegis', ?, ?, ?)
+          `).run(task.id, `Quality Review Rejected (attempt ${newAttempts}/${maxAegisRetries}):\n${verdict.notes}`, now, task.workspace_id)
+        }
+
+        db_helpers.logActivity(
+          'aegis_review',
+          'task',
+          task.id,
+          'aegis',
+          `Aegis ${verdict.status} task "${task.title}": ${verdict.notes.substring(0, 200)}`,
+          { verdict: verdict.status, notes: verdict.notes },
+          task.workspace_id
+        )
+
+        logger.info({ taskId: task.id, verdict: verdict.status }, 'Aegis review completed')
+        return { id: task.id, verdict: verdict.status }
+      } catch (err: any) {
+        const errorMsg = err.message || 'Unknown error'
+        logger.error({ taskId: task.id, err }, 'Aegis review failed')
+
+        // Revert to review so it can be retried
+        db.prepare('UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?')
+          .run('review', Math.floor(Date.now() / 1000), task.id)
+
+        eventBus.broadcast('task.status_changed', {
+          id: task.id,
+          status: 'review',
+          previous_status: 'quality_review',
+        })
+
+        return { id: task.id, verdict: 'error', error: errorMsg.substring(0, 100) }
+      }
+    })
+  )
 
   const approved = results.filter(r => r.verdict === 'approved').length
   const rejected = results.filter(r => r.verdict === 'rejected').length
@@ -1213,305 +1216,304 @@ export async function dispatchAssignedTasks(): Promise<{ ok: boolean; message: s
     }
   }
 
-  const results: Array<{ id: number; success: boolean; error?: string }> = []
   const now = Math.floor(Date.now() / 1000)
 
-  for (const task of tasks) {
-    // Mark as in_progress immediately to prevent re-dispatch
-    db.prepare('UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?')
-      .run('in_progress', now, task.id)
-
-    eventBus.broadcast('task.status_changed', {
-      id: task.id,
-      status: 'in_progress',
-      previous_status: 'assigned',
-    })
-
-    db_helpers.logActivity(
-      'task_dispatched',
-      'task',
-      task.id,
-      'scheduler',
-      `Dispatching task "${task.title}" to agent ${task.agent_name}`,
-      { agent: task.agent_name, priority: task.priority },
-      task.workspace_id
-    )
-
-    try {
-      // Check for previous Aegis rejection feedback
-      const rejectionRow = db.prepare(`
-        SELECT content FROM comments
-        WHERE task_id = ? AND author = 'aegis' AND content LIKE 'Quality Review Rejected:%'
-        ORDER BY created_at DESC LIMIT 1
-      `).get(task.id) as { content: string } | undefined
-      const rejectionFeedback = rejectionRow?.content?.replace(/^Quality Review Rejected:\n?/, '') || null
-
-      const prompt = buildTaskPrompt(task, rejectionFeedback)
-
-      // Check if task has a target session specified in metadata
-      const taskMeta = (() => {
-        try {
-          const row = db.prepare('SELECT metadata FROM tasks WHERE id = ?').get(task.id) as { metadata: string } | undefined
-          return row?.metadata ? JSON.parse(row.metadata) : {}
-        } catch { return {} }
-      })()
-      const targetSession: string | null = typeof taskMeta?.target_session === 'string' && taskMeta.target_session
-        ? taskMeta.target_session
-        : null
-
-      let agentResponse: AgentResponseParsed
-      const useDirectApi = !isGatewayAvailable() && isDirectDispatchAvailable()
-
-      if (useDirectApi && !targetSession) {
-        // Direct API dispatch — provider chosen by `dispatchModel` prefix
-        // (Anthropic / OpenAI / OpenAI-compatible local). No gateway needed.
-        agentResponse = await callDirectly(task, prompt)
-      } else if (targetSession) {
-        // Dispatch to a specific existing session via chat.send
-        logger.info({ taskId: task.id, targetSession, agent: task.agent_name }, 'Dispatching task to targeted session')
-        const sendResult = await callOpenClawGateway<any>(
-          'chat.send',
-          {
-            sessionKey: targetSession,
-            message: prompt,
-            idempotencyKey: `task-dispatch-${task.id}-${Date.now()}`,
-            deliver: false,
-          },
-          125_000,
-        )
-        const status = String(sendResult?.status || '').toLowerCase()
-        if (status !== 'started' && status !== 'ok' && status !== 'in_flight' && status !== 'accepted') {
-          throw new Error(`chat.send to session ${targetSession} returned status: ${status}`)
-        }
-        // chat.send is fire-and-forget. Only runs with a runId can be safely
-        // reconciled by agent.wait; accepted sends without one need explicit
-        // manual/later recovery instead of looking pending forever.
-        const dispatchRunId = typeof sendResult?.runId === 'string' && sendResult.runId.trim()
-          ? sendResult.runId.trim()
-          : null
-        const asyncState = dispatchRunId ? 'pending' : 'accepted_without_run_id'
-        const pendingMeta: Record<string, any> = {
-          ...taskMeta,
-          target_session: targetSession,
-          dispatch_session_id: targetSession,
-          ...(dispatchRunId ? { dispatch_run_id: dispatchRunId } : {
-            async_reconciliation: 'manual_required',
-            async_warning: 'chat.send accepted without a runId; automatic completion reconciliation cannot safely wait on this session.',
-          }),
-          async_state: asyncState,
-          async_dispatched_at: Math.floor(Date.now() / 1000),
-        }
-        db.prepare('UPDATE tasks SET metadata = ?, updated_at = ? WHERE id = ?')
-          .run(JSON.stringify(pendingMeta), Math.floor(Date.now() / 1000), task.id)
-
-        eventBus.broadcast('task.updated', {
-          id: task.id,
-          status: 'in_progress',
-          assigned_to: task.assigned_to,
-          dispatch_session_id: targetSession,
-          dispatch_run_id: pendingMeta.dispatch_run_id,
-          async_state: asyncState,
-        })
-
-        db_helpers.logActivity(
-          dispatchRunId ? 'task_deferred_dispatch' : 'task_deferred_dispatch_unreconcilable',
-          'task',
-          task.id,
-          'scheduler',
-          dispatchRunId
-            ? `Deferred task "${task.title}" to existing session ${targetSession}`
-            : `Accepted task "${task.title}" in existing session ${targetSession} without a runId; manual reconciliation required`,
-          { dispatch_session_id: targetSession, dispatch_run_id: pendingMeta.dispatch_run_id, async_state: asyncState },
-          task.workspace_id
-        )
-
-        results.push({ id: task.id, success: true })
-        continue
-      } else {
-        // Step 1: Invoke via gateway (new session)
-        const gatewayAgentId = resolveGatewayAgentId(task)
-        const dispatchModel = resolveTaskDispatchModelOverride(task)
-        const invokeParams: Record<string, unknown> = {
-          message: prompt,
-          agentId: gatewayAgentId,
-          idempotencyKey: `task-dispatch-${task.id}-${Date.now()}`,
-          deliver: false,
-        }
-        // Route to appropriate model tier based on task complexity.
-        // null = no override, agent uses its own configured default model.
-        if (dispatchModel) invokeParams.model = dispatchModel
-
-        const acceptedPayload = await callOpenClawGateway<any>(
-          'agent',
-          invokeParams,
-          AGENT_DISPATCH_ACCEPT_TIMEOUT_MS,
-        )
-        const status = String(acceptedPayload?.status || '').toLowerCase()
-        if (status && !['started', 'ok', 'in_flight', 'accepted'].includes(status)) {
-          throw new Error(`agent dispatch returned status: ${status}`)
-        }
-
-        const dispatchRunId = typeof acceptedPayload?.runId === 'string' && acceptedPayload.runId.trim()
-          ? acceptedPayload.runId.trim()
-          : null
-        const dispatchSessionId = typeof acceptedPayload?.sessionId === 'string' && acceptedPayload.sessionId.trim()
-          ? acceptedPayload.sessionId.trim()
-          : typeof acceptedPayload?.session_id === 'string' && acceptedPayload.session_id.trim()
-            ? acceptedPayload.session_id.trim()
-            : gatewayAgentId
-        const asyncState = dispatchRunId ? 'pending' : 'accepted_without_run_id'
-        const pendingMeta: Record<string, any> = {
-          ...taskMeta,
-          dispatch_session_id: dispatchSessionId,
-          ...(dispatchRunId ? { dispatch_run_id: dispatchRunId } : {
-            async_reconciliation: 'manual_required',
-            async_warning: 'agent dispatch accepted without a runId; automatic completion reconciliation cannot safely wait on this run.',
-          }),
-          async_state: asyncState,
-          async_dispatched_at: Math.floor(Date.now() / 1000),
-        }
-        db.prepare('UPDATE tasks SET metadata = ?, updated_at = ? WHERE id = ?')
-          .run(JSON.stringify(pendingMeta), Math.floor(Date.now() / 1000), task.id)
-
-        eventBus.broadcast('task.updated', {
-          id: task.id,
-          status: 'in_progress',
-          assigned_to: task.assigned_to,
-          dispatch_session_id: dispatchSessionId,
-          dispatch_run_id: pendingMeta.dispatch_run_id,
-          async_state: asyncState,
-        })
-
-        db_helpers.logActivity(
-          dispatchRunId ? 'task_deferred_dispatch' : 'task_deferred_dispatch_unreconcilable',
-          'task',
-          task.id,
-          'scheduler',
-          dispatchRunId
-            ? `Deferred task "${task.title}" to agent ${task.agent_name}`
-            : `Accepted task "${task.title}" for agent ${task.agent_name} without a runId; manual reconciliation required`,
-          { dispatch_session_id: dispatchSessionId, dispatch_run_id: pendingMeta.dispatch_run_id, async_state: asyncState },
-          task.workspace_id
-        )
-
-        results.push({ id: task.id, success: true })
-        continue
-      } // end else (new session dispatch)
-
-      if (!agentResponse.text) {
-        throw new Error('Agent returned empty response')
-      }
-
-      const truncated = agentResponse.text.length > 10_000
-        ? agentResponse.text.substring(0, 10_000) + '\n\n[Response truncated at 10,000 characters]'
-        : agentResponse.text
-
-      // Merge dispatch_session_id into existing metadata
-      const existingMeta = (() => {
-        try {
-          const row = db.prepare('SELECT metadata FROM tasks WHERE id = ?').get(task.id) as { metadata: string } | undefined
-          return row?.metadata ? JSON.parse(row.metadata) : {}
-        } catch { return {} }
-      })()
-      if (agentResponse.sessionId) {
-        existingMeta.dispatch_session_id = agentResponse.sessionId
-      }
-
-      // Update task: status → review, set outcome
-      db.prepare(`
-        UPDATE tasks SET status = ?, outcome = ?, resolution = ?, metadata = ?, updated_at = ? WHERE id = ?
-      `).run('review', 'success', truncated, JSON.stringify(existingMeta), Math.floor(Date.now() / 1000), task.id)
-
-      // Add a comment from the agent with the full response
-      db.prepare(`
-        INSERT INTO comments (task_id, author, content, created_at, workspace_id)
-        VALUES (?, ?, ?, ?, ?)
-      `).run(
-        task.id,
-        task.agent_name,
-        truncated,
-        Math.floor(Date.now() / 1000),
-        task.workspace_id
-      )
+  const results: Array<{ id: number; success: boolean; error?: string }> = await Promise.all(
+    tasks.map(async (task): Promise<{ id: number; success: boolean; error?: string }> => {
+      // Mark as in_progress immediately to prevent re-dispatch
+      db.prepare('UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?')
+        .run('in_progress', now, task.id)
 
       eventBus.broadcast('task.status_changed', {
         id: task.id,
-        status: 'review',
-        previous_status: 'in_progress',
+        status: 'in_progress',
+        previous_status: 'assigned',
       })
 
-      eventBus.broadcast('task.updated', {
-        id: task.id,
-        status: 'review',
-        outcome: 'success',
-        assigned_to: task.assigned_to,
-        dispatch_session_id: agentResponse.sessionId,
-      })
-      syncAndEscalateIfFailed(task, 'review')
-
       db_helpers.logActivity(
-        'task_agent_completed',
-        'task',
-        task.id,
-        task.agent_name,
-        `Agent completed task "${task.title}" — awaiting review`,
-        { response_length: agentResponse.text.length, dispatch_session_id: agentResponse.sessionId },
-        task.workspace_id
-      )
-
-      results.push({ id: task.id, success: true })
-      logger.info({ taskId: task.id, agent: task.agent_name }, 'Task dispatched and completed')
-    } catch (err: any) {
-      const errorMsg = err.message || 'Unknown error'
-      logger.error({ taskId: task.id, agent: task.agent_name, err }, 'Task dispatch failed')
-
-      // Increment dispatch_attempts and decide next status
-      const currentAttempts = (db.prepare('SELECT dispatch_attempts FROM tasks WHERE id = ?').get(task.id) as { dispatch_attempts: number } | undefined)?.dispatch_attempts ?? 0
-      const newAttempts = currentAttempts + 1
-      const maxDispatchRetries = 5
-
-      if (newAttempts >= maxDispatchRetries) {
-        const failureMessage = `Dispatch failed ${newAttempts} times. Last: ${errorMsg.substring(0, 5000)}`
-        // Too many failures — move to failed
-        db.prepare('UPDATE tasks SET status = ?, error_message = ?, dispatch_attempts = ?, updated_at = ? WHERE id = ?')
-          .run('failed', failureMessage, newAttempts, Math.floor(Date.now() / 1000), task.id)
-
-        eventBus.broadcast('task.status_changed', {
-          id: task.id,
-          status: 'failed',
-          previous_status: 'in_progress',
-          error_message: failureMessage,
-          reason: 'max_dispatch_retries_exceeded',
-        })
-        syncAndEscalateIfFailed(task, 'failed', `Dispatch failed ${newAttempts} times`, newAttempts)
-      } else {
-        // Revert to assigned so it can be retried on the next tick
-        db.prepare('UPDATE tasks SET status = ?, error_message = ?, dispatch_attempts = ?, updated_at = ? WHERE id = ?')
-          .run('assigned', errorMsg.substring(0, 5000), newAttempts, Math.floor(Date.now() / 1000), task.id)
-
-        eventBus.broadcast('task.status_changed', {
-          id: task.id,
-          status: 'assigned',
-          previous_status: 'in_progress',
-          error_message: errorMsg.substring(0, 500),
-          reason: 'dispatch_failed',
-        })
-        syncAndEscalateIfFailed(task, 'assigned')
-      }
-
-      db_helpers.logActivity(
-        'task_dispatch_failed',
+        'task_dispatched',
         'task',
         task.id,
         'scheduler',
-        `Task dispatch failed for "${task.title}": ${errorMsg.substring(0, 200)}`,
-        { error: errorMsg.substring(0, 1000) },
+        `Dispatching task "${task.title}" to agent ${task.agent_name}`,
+        { agent: task.agent_name, priority: task.priority },
         task.workspace_id
       )
 
-      results.push({ id: task.id, success: false, error: errorMsg.substring(0, 100) })
-    }
-  }
+      try {
+        // Check for previous Aegis rejection feedback
+        const rejectionRow = db.prepare(`
+          SELECT content FROM comments
+          WHERE task_id = ? AND author = 'aegis' AND content LIKE 'Quality Review Rejected:%'
+          ORDER BY created_at DESC LIMIT 1
+        `).get(task.id) as { content: string } | undefined
+        const rejectionFeedback = rejectionRow?.content?.replace(/^Quality Review Rejected:\n?/, '') || null
+
+        const prompt = buildTaskPrompt(task, rejectionFeedback)
+
+        // Check if task has a target session specified in metadata
+        const taskMeta = (() => {
+          try {
+            const row = db.prepare('SELECT metadata FROM tasks WHERE id = ?').get(task.id) as { metadata: string } | undefined
+            return row?.metadata ? JSON.parse(row.metadata) : {}
+          } catch { return {} }
+        })()
+        const targetSession: string | null = typeof taskMeta?.target_session === 'string' && taskMeta.target_session
+          ? taskMeta.target_session
+          : null
+
+        let agentResponse: AgentResponseParsed
+        const useDirectApi = !isGatewayAvailable() && isDirectDispatchAvailable()
+
+        if (useDirectApi && !targetSession) {
+          // Direct API dispatch — provider chosen by `dispatchModel` prefix
+          // (Anthropic / OpenAI / OpenAI-compatible local). No gateway needed.
+          agentResponse = await callDirectly(task, prompt)
+        } else if (targetSession) {
+          // Dispatch to a specific existing session via chat.send
+          logger.info({ taskId: task.id, targetSession, agent: task.agent_name }, 'Dispatching task to targeted session')
+          const sendResult = await callOpenClawGateway<any>(
+            'chat.send',
+            {
+              sessionKey: targetSession,
+              message: prompt,
+              idempotencyKey: `task-dispatch-${task.id}-${Date.now()}`,
+              deliver: false,
+            },
+            125_000,
+          )
+          const status = String(sendResult?.status || '').toLowerCase()
+          if (status !== 'started' && status !== 'ok' && status !== 'in_flight' && status !== 'accepted') {
+            throw new Error(`chat.send to session ${targetSession} returned status: ${status}`)
+          }
+          // chat.send is fire-and-forget. Only runs with a runId can be safely
+          // reconciled by agent.wait; accepted sends without one need explicit
+          // manual/later recovery instead of looking pending forever.
+          const dispatchRunId = typeof sendResult?.runId === 'string' && sendResult.runId.trim()
+            ? sendResult.runId.trim()
+            : null
+          const asyncState = dispatchRunId ? 'pending' : 'accepted_without_run_id'
+          const pendingMeta: Record<string, any> = {
+            ...taskMeta,
+            target_session: targetSession,
+            dispatch_session_id: targetSession,
+            ...(dispatchRunId ? { dispatch_run_id: dispatchRunId } : {
+              async_reconciliation: 'manual_required',
+              async_warning: 'chat.send accepted without a runId; automatic completion reconciliation cannot safely wait on this session.',
+            }),
+            async_state: asyncState,
+            async_dispatched_at: Math.floor(Date.now() / 1000),
+          }
+          db.prepare('UPDATE tasks SET metadata = ?, updated_at = ? WHERE id = ?')
+            .run(JSON.stringify(pendingMeta), Math.floor(Date.now() / 1000), task.id)
+
+          eventBus.broadcast('task.updated', {
+            id: task.id,
+            status: 'in_progress',
+            assigned_to: task.assigned_to,
+            dispatch_session_id: targetSession,
+            dispatch_run_id: pendingMeta.dispatch_run_id,
+            async_state: asyncState,
+          })
+
+          db_helpers.logActivity(
+            dispatchRunId ? 'task_deferred_dispatch' : 'task_deferred_dispatch_unreconcilable',
+            'task',
+            task.id,
+            'scheduler',
+            dispatchRunId
+              ? `Deferred task "${task.title}" to existing session ${targetSession}`
+              : `Accepted task "${task.title}" in existing session ${targetSession} without a runId; manual reconciliation required`,
+            { dispatch_session_id: targetSession, dispatch_run_id: pendingMeta.dispatch_run_id, async_state: asyncState },
+            task.workspace_id
+          )
+
+          return { id: task.id, success: true }
+        } else {
+          // Step 1: Invoke via gateway (new session)
+          const gatewayAgentId = resolveGatewayAgentId(task)
+          const dispatchModel = resolveTaskDispatchModelOverride(task)
+          const invokeParams: Record<string, unknown> = {
+            message: prompt,
+            agentId: gatewayAgentId,
+            idempotencyKey: `task-dispatch-${task.id}-${Date.now()}`,
+            deliver: false,
+          }
+          // Route to appropriate model tier based on task complexity.
+          // null = no override, agent uses its own configured default model.
+          if (dispatchModel) invokeParams.model = dispatchModel
+
+          const acceptedPayload = await callOpenClawGateway<any>(
+            'agent',
+            invokeParams,
+            AGENT_DISPATCH_ACCEPT_TIMEOUT_MS,
+          )
+          const status = String(acceptedPayload?.status || '').toLowerCase()
+          if (status && !['started', 'ok', 'in_flight', 'accepted'].includes(status)) {
+            throw new Error(`agent dispatch returned status: ${status}`)
+          }
+
+          const dispatchRunId = typeof acceptedPayload?.runId === 'string' && acceptedPayload.runId.trim()
+            ? acceptedPayload.runId.trim()
+            : null
+          const dispatchSessionId = typeof acceptedPayload?.sessionId === 'string' && acceptedPayload.sessionId.trim()
+            ? acceptedPayload.sessionId.trim()
+            : typeof acceptedPayload?.session_id === 'string' && acceptedPayload.session_id.trim()
+              ? acceptedPayload.session_id.trim()
+              : gatewayAgentId
+          const asyncState = dispatchRunId ? 'pending' : 'accepted_without_run_id'
+          const pendingMeta: Record<string, any> = {
+            ...taskMeta,
+            dispatch_session_id: dispatchSessionId,
+            ...(dispatchRunId ? { dispatch_run_id: dispatchRunId } : {
+              async_reconciliation: 'manual_required',
+              async_warning: 'agent dispatch accepted without a runId; automatic completion reconciliation cannot safely wait on this run.',
+            }),
+            async_state: asyncState,
+            async_dispatched_at: Math.floor(Date.now() / 1000),
+          }
+          db.prepare('UPDATE tasks SET metadata = ?, updated_at = ? WHERE id = ?')
+            .run(JSON.stringify(pendingMeta), Math.floor(Date.now() / 1000), task.id)
+
+          eventBus.broadcast('task.updated', {
+            id: task.id,
+            status: 'in_progress',
+            assigned_to: task.assigned_to,
+            dispatch_session_id: dispatchSessionId,
+            dispatch_run_id: pendingMeta.dispatch_run_id,
+            async_state: asyncState,
+          })
+
+          db_helpers.logActivity(
+            dispatchRunId ? 'task_deferred_dispatch' : 'task_deferred_dispatch_unreconcilable',
+            'task',
+            task.id,
+            'scheduler',
+            dispatchRunId
+              ? `Deferred task "${task.title}" to agent ${task.agent_name}`
+              : `Accepted task "${task.title}" for agent ${task.agent_name} without a runId; manual reconciliation required`,
+            { dispatch_session_id: dispatchSessionId, dispatch_run_id: pendingMeta.dispatch_run_id, async_state: asyncState },
+            task.workspace_id
+          )
+
+          return { id: task.id, success: true }
+        } // end else (new session dispatch)
+
+        if (!agentResponse.text) {
+          throw new Error('Agent returned empty response')
+        }
+
+        const truncated = agentResponse.text.length > 10_000
+          ? agentResponse.text.substring(0, 10_000) + '\n\n[Response truncated at 10,000 characters]'
+          : agentResponse.text
+
+        // Merge dispatch_session_id into existing metadata
+        const existingMeta = (() => {
+          try {
+            const row = db.prepare('SELECT metadata FROM tasks WHERE id = ?').get(task.id) as { metadata: string } | undefined
+            return row?.metadata ? JSON.parse(row.metadata) : {}
+          } catch { return {} }
+        })()
+        if (agentResponse.sessionId) {
+          existingMeta.dispatch_session_id = agentResponse.sessionId
+        }
+
+        // Update task: status → review, set outcome
+        db.prepare(`
+          UPDATE tasks SET status = ?, outcome = ?, resolution = ?, metadata = ?, updated_at = ? WHERE id = ?
+        `).run('review', 'success', truncated, JSON.stringify(existingMeta), Math.floor(Date.now() / 1000), task.id)
+
+        // Add a comment from the agent with the full response
+        db.prepare(`
+          INSERT INTO comments (task_id, author, content, created_at, workspace_id)
+          VALUES (?, ?, ?, ?, ?)
+        `).run(
+          task.id,
+          task.agent_name,
+          truncated,
+          Math.floor(Date.now() / 1000),
+          task.workspace_id
+        )
+
+        eventBus.broadcast('task.status_changed', {
+          id: task.id,
+          status: 'review',
+          previous_status: 'in_progress',
+        })
+
+        eventBus.broadcast('task.updated', {
+          id: task.id,
+          status: 'review',
+          outcome: 'success',
+          assigned_to: task.assigned_to,
+          dispatch_session_id: agentResponse.sessionId,
+        })
+        syncAndEscalateIfFailed(task, 'review')
+
+        db_helpers.logActivity(
+          'task_agent_completed',
+          'task',
+          task.id,
+          task.agent_name,
+          `Agent completed task "${task.title}" — awaiting review`,
+          { response_length: agentResponse.text.length, dispatch_session_id: agentResponse.sessionId },
+          task.workspace_id
+        )
+
+        logger.info({ taskId: task.id, agent: task.agent_name }, 'Task dispatched and completed')
+        return { id: task.id, success: true }
+      } catch (err: any) {
+        const errorMsg = err.message || 'Unknown error'
+        logger.error({ taskId: task.id, agent: task.agent_name, err }, 'Task dispatch failed')
+
+        // Increment dispatch_attempts and decide next status
+        const currentAttempts = (db.prepare('SELECT dispatch_attempts FROM tasks WHERE id = ?').get(task.id) as { dispatch_attempts: number } | undefined)?.dispatch_attempts ?? 0
+        const newAttempts = currentAttempts + 1
+        const maxDispatchRetries = 5
+
+        if (newAttempts >= maxDispatchRetries) {
+          const failureMessage = `Dispatch failed ${newAttempts} times. Last: ${errorMsg.substring(0, 5000)}`
+          // Too many failures — move to failed
+          db.prepare('UPDATE tasks SET status = ?, error_message = ?, dispatch_attempts = ?, updated_at = ? WHERE id = ?')
+            .run('failed', failureMessage, newAttempts, Math.floor(Date.now() / 1000), task.id)
+
+          eventBus.broadcast('task.status_changed', {
+            id: task.id,
+            status: 'failed',
+            previous_status: 'in_progress',
+            error_message: failureMessage,
+            reason: 'max_dispatch_retries_exceeded',
+          })
+          syncAndEscalateIfFailed(task, 'failed', `Dispatch failed ${newAttempts} times`, newAttempts)
+        } else {
+          // Revert to assigned so it can be retried on the next tick
+          db.prepare('UPDATE tasks SET status = ?, error_message = ?, dispatch_attempts = ?, updated_at = ? WHERE id = ?')
+            .run('assigned', errorMsg.substring(0, 5000), newAttempts, Math.floor(Date.now() / 1000), task.id)
+
+          eventBus.broadcast('task.status_changed', {
+            id: task.id,
+            status: 'assigned',
+            previous_status: 'in_progress',
+            error_message: errorMsg.substring(0, 500),
+            reason: 'dispatch_failed',
+          })
+          syncAndEscalateIfFailed(task, 'assigned')
+        }
+
+        db_helpers.logActivity(
+          'task_dispatch_failed',
+          'task',
+          task.id,
+          'scheduler',
+          `Task dispatch failed for "${task.title}": ${errorMsg.substring(0, 200)}`,
+          { error: errorMsg.substring(0, 1000) },
+          task.workspace_id
+        )
+
+        return { id: task.id, success: false, error: errorMsg.substring(0, 100) }
+      }
+    })
+  )
 
   const succeeded = results.filter(r => r.success).length
   const failed = results.filter(r => !r.success)

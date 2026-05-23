@@ -57,13 +57,15 @@ async function runSyncTick(): Promise<void> {
       workspace_id: number
     }>
 
-    for (const project of projects) {
-      try {
-        await pullFromGitHub(project, project.workspace_id)
-      } catch (err) {
-        logger.error({ err, projectId: project.id, repo: project.github_repo }, 'Sync poller: project sync failed')
-      }
-    }
+    await Promise.allSettled(
+      projects.map(async (project) => {
+        try {
+          await pullFromGitHub(project, project.workspace_id)
+        } catch (err) {
+          logger.error({ err, projectId: project.id, repo: project.github_repo }, 'Sync poller: project sync failed')
+        }
+      })
+    )
 
     lastRun = Math.floor(Date.now() / 1000)
   } catch (err) {
