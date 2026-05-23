@@ -242,7 +242,6 @@ export function PipelineTab() {
             value={formName}
             onChange={e => setFormName(e.target.value)}
             placeholder={t('pipelineNamePlaceholder')}
-            aria-label="Pipeline name"
             className="w-full h-8 px-2 rounded-md bg-secondary border border-border text-sm text-foreground"
             aria-label={t('editPipeline')}
           />
@@ -250,7 +249,6 @@ export function PipelineTab() {
             value={formDesc}
             onChange={e => setFormDesc(e.target.value)}
             placeholder={t('descriptionPlaceholder')}
-            aria-label="Pipeline description"
             className="w-full h-8 px-2 rounded-md bg-secondary border border-border text-sm text-foreground"
             aria-label={t('descriptionPlaceholder')}
           />

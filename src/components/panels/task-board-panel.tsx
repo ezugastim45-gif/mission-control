@@ -853,7 +853,6 @@ export function TaskBoardPanel() {
                 value={spawnFormData.task}
                 onChange={(e) => setSpawnFormData(prev => ({ ...prev, task: e.target.value }))}
                 placeholder={t('spawnTaskPlaceholder')}
-                aria-label="Task"
                 className="w-full h-20 px-3 py-2 border border-border rounded-md bg-background text-foreground text-sm placeholder-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
                 disabled={isSpawning}
                 aria-label={t('spawnTaskPlaceholder')}
@@ -864,7 +863,6 @@ export function TaskBoardPanel() {
                   value={spawnFormData.label}
                   onChange={(e) => setSpawnFormData(prev => ({ ...prev, label: e.target.value }))}
                   placeholder={t('spawnLabelPlaceholder')}
-                  aria-label="Label"
                   className="flex-1 px-3 py-1.5 border border-border rounded-md bg-background text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
                   disabled={isSpawning}
                   aria-label={t('spawnLabelPlaceholder')}
@@ -886,7 +884,6 @@ export function TaskBoardPanel() {
                   max="3600"
                   value={spawnFormData.timeoutSeconds}
                   onChange={(e) => setSpawnFormData(prev => ({ ...prev, timeoutSeconds: parseInt(e.target.value) || 300 }))}
-                  aria-label="Timeout (seconds)"
                   className="w-20 px-2 py-1.5 border border-border rounded-md bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                   title={t('timeoutSeconds')}
                   disabled={isSpawning}
@@ -1804,7 +1801,6 @@ function TaskDetailModal({
                     type="text"
                     value={reviewer}
                     onChange={(e) => setReviewer(e.target.value)}
-                    aria-label="Reviewer"
                     className="bg-surface-1 text-foreground border border-border rounded-md px-2 py-1 text-xs"
                     placeholder={t('reviewerPlaceholder')}
                     aria-label={t('reviewerPlaceholder')}
@@ -1822,7 +1818,6 @@ function TaskDetailModal({
                     type="text"
                     value={reviewNotes}
                     onChange={(e) => setReviewNotes(e.target.value)}
-                    aria-label="Review notes"
                     className="flex-1 bg-surface-1 text-foreground border border-border rounded-md px-2 py-1 text-xs"
                     placeholder={t('reviewNotesPlaceholder')}
                     aria-label={t('reviewNotesPlaceholder')}

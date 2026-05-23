@@ -195,7 +195,6 @@ export function OverviewTab({
                   type="text"
                   value={formData.role}
                   onChange={(e) => setFormData((prev: any) => ({ ...prev, role: e.target.value }))}
-                  aria-label="Role"
                   className="bg-surface-1 text-foreground border border-border rounded px-2.5 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
                   aria-label={t('role')}
                 />
@@ -240,7 +239,6 @@ export function OverviewTab({
                   type="text"
                   value={formData.session_key}
                   onChange={(e) => setFormData((prev: any) => ({ ...prev, session_key: e.target.value }))}
-                  aria-label="Session key"
                   className="bg-surface-1 text-foreground border border-border rounded px-2.5 py-1.5 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary/50"
                   placeholder={t('sessionKeyPlaceholder')}
                   aria-label={t('sessionKey')}
@@ -321,7 +319,6 @@ export function OverviewTab({
               type="text"
               value={messageFrom}
               onChange={(e) => setMessageFrom(e.target.value)}
-              aria-label="From"
               className="bg-surface-1 text-foreground rounded px-2.5 py-1.5 text-xs border border-border focus:outline-none focus:ring-1 focus:ring-primary/50"
               placeholder={t('from')}
               aria-label={t('from')}
@@ -329,7 +326,6 @@ export function OverviewTab({
             <textarea
               value={directMessage}
               onChange={(e) => setDirectMessage(e.target.value)}
-              aria-label="Direct message"
               className="flex-1 min-h-[80px] bg-surface-1 text-foreground rounded px-2.5 py-2 text-sm border border-border focus:outline-none focus:ring-1 focus:ring-primary/50 resize-none"
               placeholder={t('sendMessagePlaceholder', { name: agent.name })}
               aria-label={t('send')}
@@ -441,7 +437,6 @@ export function SoulTab({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={20}
-            aria-label="Soul content"
             className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/50 font-mono text-sm"
             placeholder={t('soulEditorPlaceholder')}
             aria-label={t('soulContent', { count: content.length })}
@@ -576,7 +571,6 @@ export function MemoryTab({
               value={newEntry}
               onChange={(e) => setNewEntry(e.target.value)}
               rows={5}
-              aria-label="New memory entry"
               className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/50"
               placeholder={t('addMemoryEntryPlaceholder')}
               aria-label={t('addMemoryEntryPlaceholder')}
@@ -587,7 +581,6 @@ export function MemoryTab({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={15}
-            aria-label="Working memory content"
             className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/50 font-mono text-sm"
             placeholder={t('workingMemoryPlaceholder')}
             aria-label={t('workingMemoryPlaceholder')}
@@ -1109,7 +1102,6 @@ export function CreateAgentModal({
                     type="text"
                     value={formData.name}
                     onChange={(e) => updateName(e.target.value)}
-                    aria-label="Display name"
                     className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/50"
                     placeholder={t('displayNamePlaceholder')}
                     autoFocus
@@ -1122,7 +1114,6 @@ export function CreateAgentModal({
                     type="text"
                     value={formData.id}
                     onChange={(e) => setFormData(prev => ({ ...prev, id: e.target.value }))}
-                    aria-label="Agent ID"
                     className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/50 font-mono text-sm"
                     placeholder="frontend-dev"
                     aria-label={t('agentId')}
@@ -1137,7 +1128,6 @@ export function CreateAgentModal({
                     type="text"
                     value={formData.role}
                     onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                    aria-label="Role"
                     className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/50"
                     placeholder="builder engineer"
                     aria-label={t('roleTheme')}
@@ -1149,7 +1139,6 @@ export function CreateAgentModal({
                     type="text"
                     value={formData.emoji}
                     onChange={(e) => setFormData(prev => ({ ...prev, emoji: e.target.value }))}
-                    aria-label="Emoji"
                     className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/50"
                     placeholder="e.g. \ud83d\udee0\ufe0f"
                     aria-label={t('emoji')}
@@ -1186,7 +1175,6 @@ export function CreateAgentModal({
                   value={formData.modelPrimary}
                   onChange={(e) => setFormData(prev => ({ ...prev, modelPrimary: e.target.value }))}
                   list="create-agent-model-suggestions"
-                  aria-label="Primary model"
                   className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/50 font-mono text-sm"
                   placeholder={DEFAULT_MODEL_BY_TIER[formData.modelTier]}
                   aria-label={t('primaryModel')}
@@ -1204,7 +1192,6 @@ export function CreateAgentModal({
                   <select
                     value={formData.workspaceAccess}
                     onChange={(e) => setFormData(prev => ({ ...prev, workspaceAccess: e.target.value as any }))}
-                    aria-label="Workspace access"
                     className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/50"
                     aria-label={t('workspace')}
                   >
@@ -1230,7 +1217,6 @@ export function CreateAgentModal({
                   <select
                     value={formData.dockerNetwork}
                     onChange={(e) => setFormData(prev => ({ ...prev, dockerNetwork: e.target.value as any }))}
-                    aria-label="Docker network"
                     className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/50"
                     aria-label={t('network')}
                   >
@@ -1246,7 +1232,6 @@ export function CreateAgentModal({
                   type="text"
                   value={formData.session_key}
                   onChange={(e) => setFormData(prev => ({ ...prev, session_key: e.target.value }))}
-                  aria-label="Session key"
                   className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/50"
                   placeholder={t('sessionKeyPlaceholder')}
                   aria-label={t('sessionKeyOptional')}
@@ -1679,7 +1664,6 @@ export function ConfigTab({
               value={jsonInput}
               onChange={(e) => setJsonInput(e.target.value)}
               rows={20}
-              aria-label="Configuration JSON"
               className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
               aria-label="Configuration JSON"
             />
@@ -1704,7 +1688,6 @@ export function ConfigTab({
                     onChange={(e) => updateModelConfig((current) => ({ ...current, primary: e.target.value }))}
                     list="agent-model-suggestions"
                     placeholder="anthropic/claude-sonnet-4-20250514"
-                    aria-label="Primary model"
                     className="w-full bg-surface-1 text-foreground rounded px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary/50"
                     aria-label={t('primaryModel')}
                   />
@@ -1727,7 +1710,6 @@ export function ConfigTab({
                             updateModelConfig((current) => ({ ...current, fallbacks: next }))
                           }}
                           list="agent-model-suggestions"
-                          aria-label={`Fallback model ${index + 1}`}
                           className="flex-1 bg-surface-1 text-foreground rounded px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/50"
                           aria-label={t('fallbackModels')}
                         />
@@ -1749,7 +1731,6 @@ export function ConfigTab({
                         onChange={(e) => setNewFallbackModel(e.target.value)}
                         list="agent-model-suggestions"
                         placeholder={t('addFallbackModel')}
-                        aria-label="New fallback model"
                         className="flex-1 bg-surface-1 text-foreground rounded px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/50"
                         aria-label={t('addFallbackModel')}
                       />
@@ -1792,7 +1773,6 @@ export function ConfigTab({
                     <input
                       value={identityEmoji}
                       onChange={(e) => updateIdentityField('emoji', e.target.value)}
-                      aria-label="Emoji"
                       className="w-full bg-surface-1 text-foreground rounded px-3 py-2 text-sm text-center focus:outline-none focus:ring-1 focus:ring-primary/50"
                       placeholder="🤖"
                       aria-label={t('emoji')}
@@ -1803,7 +1783,6 @@ export function ConfigTab({
                     <input
                       value={identity.name || ''}
                       onChange={(e) => updateIdentityField('name', e.target.value)}
-                      aria-label="Name"
                       className="w-full bg-surface-1 text-foreground rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
                       placeholder="Agent name"
                       aria-label={t('name')}
@@ -1814,7 +1793,6 @@ export function ConfigTab({
                     <input
                       value={identity.theme || ''}
                       onChange={(e) => updateIdentityField('theme', e.target.value)}
-                      aria-label="Theme role"
                       className="w-full bg-surface-1 text-foreground rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
                       placeholder="e.g. backend engineer"
                       aria-label={t('themeRole')}
@@ -1827,7 +1805,6 @@ export function ConfigTab({
                     value={identity.content || ''}
                     onChange={(e) => updateIdentityField('content', e.target.value)}
                     rows={4}
-                    aria-label="Identity content"
                     className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
                     placeholder="Describe the agent's identity and personality..."
                     aria-label={t('identityContent')}
@@ -1877,7 +1854,6 @@ export function ConfigTab({
                   rows={6}
                   value={identityMdInput}
                   onChange={(e) => setIdentityMdInput(e.target.value)}
-                  aria-label="identity.md"
                   className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
                   placeholder="identity.md content..."
                   aria-label="identity.md"
@@ -1903,7 +1879,6 @@ export function ConfigTab({
                   rows={8}
                   value={agentMdInput}
                   onChange={(e) => setAgentMdInput(e.target.value)}
-                  aria-label="agent.md"
                   className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
                   placeholder="agent.md content..."
                   aria-label="agent.md"
@@ -1977,7 +1952,6 @@ export function ConfigTab({
                   <input
                     value={sandbox.network || ''}
                     onChange={(e) => updateSandboxField('network', e.target.value)}
-                    aria-label="Sandbox network"
                     className="w-full bg-surface-1 text-foreground rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
                     placeholder={t('none')}
                     aria-label={t('network')}
@@ -2014,7 +1988,6 @@ export function ConfigTab({
                       onChange={(e) => setNewAllowTool(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTool('allow', newAllowTool); setNewAllowTool('') } }}
                       placeholder={t('addAllowedTool')}
-                      aria-label="Add allowed tool"
                       className="flex-1 bg-surface-1 text-foreground rounded px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
                       aria-label={t('addAllowedTool')}
                     />
@@ -2044,7 +2017,6 @@ export function ConfigTab({
                       onChange={(e) => setNewDenyTool(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTool('deny', newDenyTool); setNewDenyTool('') } }}
                       placeholder={t('addDeniedTool')}
-                      aria-label="Add denied tool"
                       className="flex-1 bg-surface-1 text-foreground rounded px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
                       aria-label={t('addDeniedTool')}
                     />
@@ -2124,7 +2096,6 @@ export function ConfigTab({
                   <input
                     type="text"
                     placeholder={t('addSubAgentPlaceholder')}
-                    aria-label="Add sub-agent"
                     className="flex-1 px-2 py-1 text-xs border border-border rounded bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
                     aria-label={t('addSubAgentPlaceholder')}
                     onKeyDown={(e) => {
@@ -2408,7 +2379,6 @@ export function FilesTab({ agent }: { agent: Agent }) {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 rows={20}
-                aria-label="File content"
                 className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-primary/50 resize-y"
                 placeholder={activeEntry.exists ? '' : t('fileNotExistYet')}
                 aria-label="File content"
@@ -2535,7 +2505,6 @@ export function ToolsTab({ agent }: { agent: Agent }) {
               }
             }}
             placeholder={t('addToolToAllowList')}
-            aria-label="Add tool to allow list"
             className="flex-1 bg-surface-1 text-foreground rounded px-3 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/50"
             aria-label={t('addToolToAllowList')}
           />
@@ -2584,7 +2553,6 @@ export function ToolsTab({ agent }: { agent: Agent }) {
               }
             }}
             placeholder={t('addToolToDenyList')}
-            aria-label="Add tool to deny list"
             className="flex-1 bg-surface-1 text-foreground rounded px-3 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/50"
             aria-label={t('addToolToDenyList')}
           />
@@ -3048,7 +3016,6 @@ export function ModelsTab({ agent }: { agent: Agent }) {
             }}
             list="model-fallback-suggestions"
             placeholder={t('addFallbackModel')}
-            aria-label="Add fallback model"
             className="flex-1 bg-surface-1 text-foreground rounded px-3 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/50"
             aria-label={t('addFallbackModel')}
           />

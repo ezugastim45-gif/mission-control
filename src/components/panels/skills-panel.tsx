@@ -449,7 +449,6 @@ export function SkillsPanel() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('searchPlaceholder')}
-              aria-label="Search installed skills"
               className="h-9 w-full rounded-md border border-border bg-secondary/50 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/40"
               aria-label={t('searchPlaceholder')}
             />
@@ -536,8 +535,7 @@ export function SkillsPanel() {
                 value={createName}
                 onChange={(e) => setCreateName(e.target.value)}
                 placeholder="new-skill-name"
-                aria-label="New skill name"
-                className="h-9 rounded-md border border-border bg-secondary/50 px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                  className="h-9 rounded-md border border-border bg-secondary/50 px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                 aria-label={t('addSkill')}
               />
               <Button variant="default" size="sm" onClick={createSkill} disabled={saving || !createName.trim()}>
@@ -667,7 +665,6 @@ export function SkillsPanel() {
                 onChange={(e) => setRegistryQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && searchRegistry()}
                 placeholder={t('registrySearchPlaceholder')}
-                aria-label="Search registry"
                 className="h-9 flex-1 rounded-md border border-border bg-secondary/50 px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                 aria-label={t('registrySearchPlaceholder')}
               />
@@ -896,7 +893,6 @@ export function SkillsPanel() {
                   <textarea
                     value={draftContent}
                     onChange={(e) => setDraftContent(e.target.value)}
-                    aria-label="Skill editor"
                     className="w-full h-full min-h-[70vh] bg-card p-4 text-xs text-muted-foreground leading-5 font-mono whitespace-pre rounded-none border-0 focus:outline-none"
                     aria-label="Edit skill content"
                   />
