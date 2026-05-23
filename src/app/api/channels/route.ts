@@ -208,47 +208,6 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const action = searchParams.get('action')
 
-  // Probe a specific channel
-  if (action === 'probe') {
-    const channel = searchParams.get('channel')
-    if (!channel) {
-      return NextResponse.json({ error: 'channel parameter required' }, { status: 400 })
-    }
-
-    try {
-      const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 5000)
-
-      const res = await fetch(`${gatewayInternalUrl}/api/channels/probe`, {
-        method: 'POST',
-        headers: gatewayHeaders(),
-        body: JSON.stringify({ channel }),
-        signal: controller.signal,
-      })
-      clearTimeout(timeout)
-
-      if (!res.ok) {
-        if (res.status === 404) {
-          return NextResponse.json(await loadChannelsViaRpc(true).catch(() => loadChannelsViaCli(true)))
-        }
-        throw new Error(`Gateway channel probe failed with status ${res.status}`)
-      }
-
-      const data = await res.json()
-      return NextResponse.json(data)
-    } catch (err) {
-      try {
-        return NextResponse.json(await loadChannelsViaRpc(true).catch(() => loadChannelsViaCli(true)))
-      } catch (cliErr) {
-        logger.warn({ err, cliErr, channel }, 'Channel probe failed')
-        return NextResponse.json(
-          { ok: false, error: 'Gateway unreachable' },
-          { status: 502 },
-        )
-      }
-    }
-  }
-
   // Default: fetch all channel statuses
   try {
     const controller = new AbortController()
@@ -421,6 +380,39 @@ export async function POST(request: NextRequest) {
         clearTimeout(timeout)
         const data = await res.json()
         return NextResponse.json(data, { status: res.ok ? 200 : res.status })
+      }
+
+      case 'probe': {
+        const channel = body.channel
+        if (!channel) {
+          return NextResponse.json({ error: 'channel required' }, { status: 400 })
+        }
+        try {
+          const controller = new AbortController()
+          const timeout = setTimeout(() => controller.abort(), 5000)
+          const res = await fetch(`${gatewayInternalUrl}/api/channels/probe`, {
+            method: 'POST',
+            headers: gatewayHeaders(),
+            body: JSON.stringify({ channel }),
+            signal: controller.signal,
+          })
+          clearTimeout(timeout)
+          if (!res.ok) {
+            if (res.status === 404) {
+              return NextResponse.json(await loadChannelsViaRpc(true).catch(() => loadChannelsViaCli(true)))
+            }
+            throw new Error(`Gateway channel probe failed with status ${res.status}`)
+          }
+          const data = await res.json()
+          return NextResponse.json(data)
+        } catch (err) {
+          try {
+            return NextResponse.json(await loadChannelsViaRpc(true).catch(() => loadChannelsViaCli(true)))
+          } catch (cliErr) {
+            logger.warn({ err, cliErr, channel }, 'Channel probe failed')
+            return NextResponse.json({ ok: false, error: 'Gateway unreachable' }, { status: 502 })
+          }
+        }
       }
 
       default:

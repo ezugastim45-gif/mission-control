@@ -155,6 +155,71 @@ function buildGatewayProbeUrl(host: string, port: number): string | null {
   return `http://${rawHost}:${port}/health`
 }
 
+type InsertLogStmt = { run(...args: (string | number | null)[]): unknown }
+
+async function probeOneGateway(
+  gw: GatewayEntry,
+  configuredHosts: Set<string>,
+  insertLogStmt: InsertLogStmt,
+): Promise<HealthResult> {
+  const probedAt = Math.floor(Date.now() / 1000)
+  const probeUrl = buildGatewayProbeUrl(gw.host, gw.port)
+  if (!probeUrl) {
+    const error = 'Invalid gateway address'
+    insertLogStmt.run(gw.id, 'error', null, probedAt, error)
+    return { id: gw.id, name: gw.name, status: 'error', latency: null, agents: [], sessions_count: 0, error }
+  }
+
+  if (isBlockedUrl(probeUrl, configuredHosts)) {
+    const error = 'Blocked URL'
+    insertLogStmt.run(gw.id, 'error', null, probedAt, error)
+    return { id: gw.id, name: gw.name, status: 'error', latency: null, agents: [], sessions_count: 0, error }
+  }
+
+  const start = Date.now()
+  try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 5000)
+
+    const res = await fetch(probeUrl, { signal: controller.signal })
+    clearTimeout(timeout)
+
+    const latency = Date.now() - start
+    const status = res.ok ? "online" : "error"
+    const gatewayVersion = parseGatewayVersion(res)
+    const compatibilityWarning = hasOpenClaw32ToolsProfileRisk(gatewayVersion)
+      ? 'OpenClaw 2026.3.2+ defaults tools.profile=messaging; Mission Control should enforce coding profile when spawning.'
+      : undefined
+
+    const errorMessage = res.ok ? null : `HTTP ${res.status}`
+    insertLogStmt.run(gw.id, status, latency, probedAt, errorMessage)
+
+    return {
+      id: gw.id,
+      name: gw.name,
+      status: status as "online" | "error",
+      latency,
+      agents: [],
+      sessions_count: 0,
+      gateway_version: gatewayVersion,
+      compatibility_warning: compatibilityWarning,
+      ...(errorMessage ? { error: errorMessage } : {}),
+    }
+  } catch (err: any) {
+    const errorMessage = err.name === "AbortError" ? "timeout" : (err.message || "connection failed")
+    insertLogStmt.run(gw.id, "offline", null, probedAt, errorMessage)
+    return {
+      id: gw.id,
+      name: gw.name,
+      status: "offline" as const,
+      latency: null,
+      agents: [],
+      sessions_count: 0,
+      error: errorMessage,
+    }
+  }
+}
+
 /**
  * POST /api/gateways/health - Server-side health probe for all gateways
  * Probes gateways from the server where loopback addresses are reachable.
@@ -187,70 +252,9 @@ export async function POST(request: NextRequest) {
     "INSERT INTO gateway_health_logs (gateway_id, status, latency, probed_at, error) VALUES (?, ?, ?, ?, ?)"
   )
 
-  const results: HealthResult[] = []
-
-  for (const gw of gateways) {
-    const probedAt = Math.floor(Date.now() / 1000)
-    const probeUrl = buildGatewayProbeUrl(gw.host, gw.port)
-    if (!probeUrl) {
-      const error = 'Invalid gateway address'
-      insertLogStmt.run(gw.id, 'error', null, probedAt, error)
-      results.push({ id: gw.id, name: gw.name, status: 'error', latency: null, agents: [], sessions_count: 0, error })
-      continue
-    }
-
-    if (isBlockedUrl(probeUrl, configuredHosts)) {
-      const error = 'Blocked URL'
-      insertLogStmt.run(gw.id, 'error', null, probedAt, error)
-      results.push({ id: gw.id, name: gw.name, status: 'error', latency: null, agents: [], sessions_count: 0, error })
-      continue
-    }
-
-    const start = Date.now()
-    try {
-      const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 5000)
-
-      const res = await fetch(probeUrl, {
-        signal: controller.signal,
-      })
-      clearTimeout(timeout)
-
-      const latency = Date.now() - start
-      const status = res.ok ? "online" : "error"
-      const gatewayVersion = parseGatewayVersion(res)
-      const compatibilityWarning = hasOpenClaw32ToolsProfileRisk(gatewayVersion)
-        ? 'OpenClaw 2026.3.2+ defaults tools.profile=messaging; Mission Control should enforce coding profile when spawning.'
-        : undefined
-
-      const errorMessage = res.ok ? null : `HTTP ${res.status}`
-      insertLogStmt.run(gw.id, status, latency, probedAt, errorMessage)
-
-      results.push({
-        id: gw.id,
-        name: gw.name,
-        status: status as "online" | "error",
-        latency,
-        agents: [],
-        sessions_count: 0,
-        gateway_version: gatewayVersion,
-        compatibility_warning: compatibilityWarning,
-        ...(errorMessage ? { error: errorMessage } : {}),
-      })
-    } catch (err: any) {
-      const errorMessage = err.name === "AbortError" ? "timeout" : (err.message || "connection failed")
-      insertLogStmt.run(gw.id, "offline", null, probedAt, errorMessage)
-      results.push({
-        id: gw.id,
-        name: gw.name,
-        status: "offline" as const,
-        latency: null,
-        agents: [],
-        sessions_count: 0,
-        error: errorMessage,
-      })
-    }
-  }
+  const results = await Promise.all(
+    gateways.map(gw => probeOneGateway(gw, configuredHosts, insertLogStmt))
+  )
 
   // Persist all probe results in a single transaction
   db.transaction(() => {

@@ -83,13 +83,15 @@ export async function POST(request: NextRequest) {
       let totalPulled = 0
       let totalPushed = 0
 
-      for (const project of projects) {
-        try {
-          const result = await pullFromGitHub(project, workspaceId)
-          totalPulled += result.pulled
-          totalPushed += result.pushed
-        } catch (err) {
-          logger.error({ err, projectId: project.id }, 'Trigger-all: project sync failed')
+      const settled = await Promise.allSettled(
+        projects.map(p => pullFromGitHub(p, workspaceId))
+      )
+      for (const [i, r] of settled.entries()) {
+        if (r.status === 'fulfilled') {
+          totalPulled += r.value.pulled
+          totalPushed += r.value.pushed
+        } else {
+          logger.error({ err: r.reason, projectId: projects[i].id }, 'Trigger-all: project sync failed')
         }
       }
 

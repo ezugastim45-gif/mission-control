@@ -197,11 +197,12 @@ export async function GET(request: NextRequest) {
       let logs: LogEntry[] = []
 
       // Read from all discovered log files
-      for (const file of logFiles) {
-        if (source && file.source !== source) continue
-        const entries = await readLogFile(file.path, file.source, 200)
-        logs.push(...entries)
-      }
+      const allEntries = await Promise.all(
+        logFiles
+          .filter(f => !source || f.source === source)
+          .map(f => readLogFile(f.path, f.source, 200))
+      )
+      for (const entries of allEntries) logs.push(...entries)
 
       // Sort newest first
       logs.sort((a, b) => b.timestamp - a.timestamp)
@@ -236,11 +237,12 @@ export async function GET(request: NextRequest) {
       const logFiles = await discoverLogFiles()
       let logs: LogEntry[] = []
 
-      for (const file of logFiles) {
-        if (source && file.source !== source) continue
-        const entries = await readLogFile(file.path, file.source, 50)
-        logs.push(...entries.filter(e => e.timestamp > sinceTimestamp))
-      }
+      const tailEntries = await Promise.all(
+        logFiles
+          .filter(f => !source || f.source === source)
+          .map(f => readLogFile(f.path, f.source, 50))
+      )
+      for (const entries of tailEntries) logs.push(...entries.filter(e => e.timestamp > sinceTimestamp))
 
       logs.sort((a, b) => b.timestamp - a.timestamp)
       logs = logs.slice(0, limit)
