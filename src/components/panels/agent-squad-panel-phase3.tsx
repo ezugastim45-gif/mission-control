@@ -901,6 +901,7 @@ function AgentDetailModalPhase3({
                 {showDeleteMenu && (
                   <div className="absolute right-0 top-full mt-1 flex flex-col gap-1 bg-card border border-border rounded-md shadow-xl p-1.5 z-10 min-w-[180px]">
                     <button
+                      type="button"
                       onClick={() => handleDelete(false)}
                       disabled={deleteBusy}
                       className="text-left text-xs px-2.5 py-1.5 rounded text-rose-300 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
@@ -915,6 +916,7 @@ function AgentDetailModalPhase3({
                       ) : 'Delete agent'}
                     </button>
                     <button
+                      type="button"
                       onClick={() => handleDelete(true)}
                       disabled={deleteBusy}
                       className="text-left text-xs px-2.5 py-1.5 rounded text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
@@ -956,6 +958,7 @@ function AgentDetailModalPhase3({
             {tabs.map(tab => (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === tab.id

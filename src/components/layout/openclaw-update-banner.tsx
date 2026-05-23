@@ -81,6 +81,7 @@ export function OpenClawUpdateBanner() {
         {!busy && state !== 'success' && (
           <>
             <button
+              type="button"
               onClick={handleUpdate}
               className="shrink-0 text-2xs font-medium text-cyan-900 bg-cyan-500 hover:bg-cyan-400 px-2.5 py-1 rounded transition-colors"
             >
@@ -88,6 +89,7 @@ export function OpenClawUpdateBanner() {
             </button>
             {openclawUpdate.releaseNotes && (
               <button
+                type="button"
                 onClick={() => setShowChangelog(v => !v)}
                 className="shrink-0 text-2xs font-medium text-cyan-400 hover:text-cyan-300 px-2 py-1 rounded border border-cyan-500/20 hover:border-cyan-500/40 transition-colors"
               >
@@ -95,6 +97,7 @@ export function OpenClawUpdateBanner() {
               </button>
             )}
             <button
+              type="button"
               onClick={handleCopy}
               className="shrink-0 text-2xs font-medium text-cyan-400 hover:text-cyan-300 px-2 py-1 rounded border border-cyan-500/20 hover:border-cyan-500/40 transition-colors"
             >

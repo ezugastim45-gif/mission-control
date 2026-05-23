@@ -357,6 +357,7 @@ export function NavRail() {
                               <span className="text-sm truncate flex-1">{item.label}</span>
                             </Button>
                             <button
+                              type="button"
                               onClick={(e) => { e.stopPropagation(); toggleParent(item.id) }}
                               className="px-1.5 py-1.5 rounded-r-lg hover:bg-secondary/50 transition-colors"
                             >
@@ -941,6 +942,7 @@ function ContextSwitcher({ currentUser, isAdmin, isLocal, isConnected, tenants, 
               <span className="text-xs text-muted-foreground">{tcs('interface')}</span>
               <div className="flex rounded-md border border-border overflow-hidden">
                 <button
+                  type="button"
                   onClick={async () => {
                     if (interfaceMode === 'essential') return
                     setInterfaceMode('essential')
@@ -958,6 +960,7 @@ function ContextSwitcher({ currentUser, isAdmin, isLocal, isConnected, tenants, 
                   {tcs('essential')}
                 </button>
                 <button
+                  type="button"
                   onClick={async () => {
                     if (interfaceMode === 'full') return
                     setInterfaceMode('full')

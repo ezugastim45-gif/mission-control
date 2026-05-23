@@ -215,6 +215,7 @@ export function CostTrackerPanel() {
               {(['overview', 'agents', 'sessions', 'tasks'] as const).map(v => (
                 <button
                   key={v}
+                  type="button"
                   onClick={() => setView(v)}
                   className={`px-3 py-1.5 text-xs font-medium transition-colors ${
                     view === v ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:text-foreground'
@@ -356,7 +357,7 @@ function OverviewView({
             <h2 className="text-xl font-semibold">{t('usageTrends')}</h2>
             <div className="flex rounded-md border border-border overflow-hidden">
               {(['incremental', 'cumulative'] as const).map(m => (
-                <button key={m} onClick={() => setChartMode(m)}
+                <button key={m} type="button" onClick={() => setChartMode(m)}
                   className={`px-2 py-1 text-[10px] font-medium ${chartMode === m ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:text-foreground'}`}
                 >{m === 'incremental' ? t('perTurn') : t('cumulative')}</button>
               ))}
@@ -679,7 +680,7 @@ function SessionsView({
       <div className="flex items-center gap-3">
         <span className="text-sm text-muted-foreground">{t('sortBy')}:</span>
         {(['cost', 'tokens', 'requests', 'recent'] as const).map(s => (
-          <button key={s} onClick={() => setSessionSort(s)}
+          <button key={s} type="button" onClick={() => setSessionSort(s)}
             className={`px-2 py-1 text-xs rounded ${sessionSort === s ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
           >{s.charAt(0).toUpperCase() + s.slice(1)}</button>
         ))}

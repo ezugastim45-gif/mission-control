@@ -389,6 +389,7 @@ export function GatewayConfigPanel() {
               placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
+              aria-label="Search settings"
               className="w-full h-7 pl-7 pr-2 text-xs bg-background border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary/50"
             />
             <svg className="absolute left-2 top-1.5 size-3.5 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -397,6 +398,7 @@ export function GatewayConfigPanel() {
             </svg>
             {searchQuery && (
               <button
+                type="button"
                 onClick={() => setSearchQuery('')}
                 className="absolute right-1.5 top-1.5 text-muted-foreground hover:text-foreground text-xs"
               >x</button>
@@ -407,6 +409,7 @@ export function GatewayConfigPanel() {
             {TAG_PRESETS.map(tag => (
               <button
                 key={tag}
+                type="button"
                 onClick={() => setSearchQuery(prev =>
                   prev.includes(`tag:${tag}`)
                     ? prev.replace(`tag:${tag}`, '').trim()
@@ -425,6 +428,7 @@ export function GatewayConfigPanel() {
         {/* Section nav */}
         <nav className="flex-1 overflow-y-auto px-1.5 pb-2 space-y-0.5">
           <button
+            type="button"
             onClick={() => setActiveSection(null)}
             className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${
               activeSection === null
@@ -443,6 +447,7 @@ export function GatewayConfigPanel() {
             return (
               <button
                 key={key}
+                type="button"
                 onClick={() => setActiveSection(isActive ? null : key)}
                 className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${
                   isActive
@@ -461,6 +466,7 @@ export function GatewayConfigPanel() {
         <div className="px-3 py-2 border-t border-border">
           <div className="flex rounded-md border border-border overflow-hidden">
             <button
+              type="button"
               onClick={() => {
                 if (mode === 'json' && config) {
                   // Sync JSON back to form
@@ -473,6 +479,7 @@ export function GatewayConfigPanel() {
               }`}
             >{t('modeForm')}</button>
             <button
+              type="button"
               onClick={() => {
                 if (mode === 'form' && config) {
                   setJsonText(JSON.stringify(config, null, 2))
@@ -562,6 +569,7 @@ export function GatewayConfigPanel() {
             <textarea
               value={jsonText}
               onChange={e => setJsonText(e.target.value)}
+              aria-label="Configuration JSON"
               className="w-full h-full min-h-[500px] p-3 text-xs font-mono bg-background border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary/50 resize-y"
               spellCheck={false}
             />
@@ -623,6 +631,7 @@ function SectionCard({ sectionKey, label, icon, description, schema, value, sear
   return (
     <div className="bg-card border border-border rounded-lg overflow-hidden">
       <button
+        type="button"
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary/30 transition-colors"
       >
@@ -735,6 +744,7 @@ function SchemaField({ fieldKey, schema, value, path, onPatch }: {
             type="checkbox"
             checked={checked}
             onChange={e => onPatch(path, e.target.checked)}
+            aria-label={label}
             className="sr-only peer"
           />
           <div className="w-9 h-5 bg-secondary rounded-full peer-checked:bg-primary/60 transition-colors" />
@@ -754,6 +764,7 @@ function SchemaField({ fieldKey, schema, value, path, onPatch }: {
           value={numValue}
           min={schema.minimum}
           max={schema.maximum}
+          aria-label={label}
           onChange={e => {
             const raw = e.target.value
             if (raw === '') { onPatch(path, undefined); return }
@@ -776,6 +787,7 @@ function SchemaField({ fieldKey, schema, value, path, onPatch }: {
           value={strValue}
           placeholder={schema.default != null ? `Default: ${String(schema.default)}` : ''}
           disabled={isRedacted}
+          aria-label={label}
           onChange={e => onPatch(path, e.target.value)}
           className="h-8 px-2 text-xs font-mono bg-background border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary/50 flex-1 min-w-40 disabled:opacity-50"
         />
@@ -868,6 +880,7 @@ function ObjectField({ fieldKey, label, help, schema, value, path, onPatch }: {
   return (
     <div className="ml-2 border-l-2 border-border/40 pl-3">
       <button
+        type="button"
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 py-1 text-xs hover:text-foreground transition-colors"
       >

@@ -567,7 +567,7 @@ export function MemoryBrowserPanel() {
         {sidebarOpen && (
           <div className="w-60 shrink-0 border-r border-border bg-[hsl(var(--surface-0))] flex flex-col min-h-0">
             <div className="p-2">
-              <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && searchFiles()} placeholder={t('searchPlaceholder')} className="w-full px-2 py-1.5 text-xs font-mono bg-[hsl(var(--surface-1))] border border-border/50 rounded text-foreground placeholder-muted-foreground/40 focus:outline-none focus:border-primary/30" />
+              <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && searchFiles()} placeholder={t('searchPlaceholder')} aria-label="Search memory files" className="w-full px-2 py-1.5 text-xs font-mono bg-[hsl(var(--surface-1))] border border-border/50 rounded text-foreground placeholder-muted-foreground/40 focus:outline-none focus:border-primary/30" />
             </div>
             <div className="flex gap-0.5 px-2 pb-2">
               {(['all', 'daily', 'knowledge'] as const).map((f) => (
@@ -652,7 +652,7 @@ export function MemoryBrowserPanel() {
                   ) : memoryContent != null && selectedMemoryFile ? (
                     <div className="p-6 max-w-3xl">
                       {isEditing ? (
-                        <textarea value={editedContent} onChange={(e) => setEditedContent(e.target.value)} className="w-full min-h-[500px] p-3 bg-[hsl(var(--surface-1))] text-foreground font-mono text-sm border border-border/50 rounded-md resize-none focus:outline-none focus:border-primary/30 leading-relaxed" placeholder={t('editPlaceholder')} />
+                        <textarea value={editedContent} onChange={(e) => setEditedContent(e.target.value)} aria-label="Edit file content" className="w-full min-h-[500px] p-3 bg-[hsl(var(--surface-1))] text-foreground font-mono text-sm border border-border/50 rounded-md resize-none focus:outline-none focus:border-primary/30 leading-relaxed" placeholder={t('editPlaceholder')} />
                       ) : selectedMemoryFile.endsWith('.md') ? (
                         <div>{renderMarkdown(memoryContent)}</div>
                       ) : selectedMemoryFile.endsWith('.json') ? (
@@ -962,7 +962,7 @@ function CreateFileModal({ onClose, onCreate }: { onClose: () => void; onCreate:
         <div className="space-y-3">
           <div>
             <label className="block text-[11px] font-mono text-muted-foreground mb-1">{t('directory')}</label>
-            <select value={filePath} onChange={(e) => setFilePath(e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-mono bg-[hsl(var(--surface-0))] border border-border/50 rounded text-foreground focus:outline-none focus:border-primary/30">
+            <select value={filePath} onChange={(e) => setFilePath(e.target.value)} aria-label="Directory" className="w-full px-2.5 py-1.5 text-xs font-mono bg-[hsl(var(--surface-0))] border border-border/50 rounded text-foreground focus:outline-none focus:border-primary/30">
               <option value="knowledge-base/">knowledge-base/</option>
               <option value="memory/">memory/</option>
               <option value="knowledge/">knowledge/</option>
@@ -973,11 +973,11 @@ function CreateFileModal({ onClose, onCreate }: { onClose: () => void; onCreate:
           </div>
           <div>
             <label className="block text-[11px] font-mono text-muted-foreground mb-1">{t('fileName')}</label>
-            <input type="text" value={fileName} onChange={(e) => setFileName(e.target.value)} placeholder="my-file" className="w-full px-2.5 py-1.5 text-xs font-mono bg-[hsl(var(--surface-0))] border border-border/50 rounded text-foreground focus:outline-none focus:border-primary/30" autoFocus />
+            <input type="text" value={fileName} onChange={(e) => setFileName(e.target.value)} placeholder="my-file" aria-label="File name" className="w-full px-2.5 py-1.5 text-xs font-mono bg-[hsl(var(--surface-0))] border border-border/50 rounded text-foreground focus:outline-none focus:border-primary/30" autoFocus />
           </div>
           <div>
             <label className="block text-[11px] font-mono text-muted-foreground mb-1">{t('fileType')}</label>
-            <select value={fileType} onChange={(e) => { setFileType(e.target.value); setInitialContent(templates[e.target.value] || '') }} className="w-full px-2.5 py-1.5 text-xs font-mono bg-[hsl(var(--surface-0))] border border-border/50 rounded text-foreground focus:outline-none focus:border-primary/30">
+            <select value={fileType} onChange={(e) => { setFileType(e.target.value); setInitialContent(templates[e.target.value] || '') }} aria-label="File type" className="w-full px-2.5 py-1.5 text-xs font-mono bg-[hsl(var(--surface-0))] border border-border/50 rounded text-foreground focus:outline-none focus:border-primary/30">
               <option value="md">.md</option>
               <option value="json">.json</option>
               <option value="txt">.txt</option>
@@ -986,7 +986,7 @@ function CreateFileModal({ onClose, onCreate }: { onClose: () => void; onCreate:
           </div>
           <div>
             <label className="block text-[11px] font-mono text-muted-foreground mb-1">{t('content')}</label>
-            <textarea value={initialContent} onChange={(e) => setInitialContent(e.target.value)} className="w-full h-20 px-2.5 py-1.5 text-xs font-mono bg-[hsl(var(--surface-0))] border border-border/50 rounded text-foreground focus:outline-none focus:border-primary/30 resize-none" placeholder={t('contentOptional')} />
+            <textarea value={initialContent} onChange={(e) => setInitialContent(e.target.value)} aria-label="Initial content" className="w-full h-20 px-2.5 py-1.5 text-xs font-mono bg-[hsl(var(--surface-0))] border border-border/50 rounded text-foreground focus:outline-none focus:border-primary/30 resize-none" placeholder={t('contentOptional')} />
           </div>
           <div className="text-[10px] font-mono text-muted-foreground/40 bg-[hsl(var(--surface-0))] px-2 py-1 rounded">{filePath}{fileName || '...'}.{fileType}</div>
           <div className="flex gap-2 pt-2">

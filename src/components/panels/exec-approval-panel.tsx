@@ -103,6 +103,7 @@ export function ExecApprovalPanel() {
       {/* View toggle */}
       <div className="flex gap-1 mb-4 border-b border-border">
         <button
+          type="button"
           onClick={() => setView('approvals')}
           className={`px-3 py-1.5 text-sm transition-colors ${
             view === 'approvals'
@@ -113,6 +114,7 @@ export function ExecApprovalPanel() {
           {t('viewApprovals')}
         </button>
         <button
+          type="button"
           onClick={() => setView('allowlist')}
           className={`px-3 py-1.5 text-sm transition-colors ${
             view === 'allowlist'
@@ -131,6 +133,7 @@ export function ExecApprovalPanel() {
             {(['all', 'pending', 'resolved'] as const).map((tab) => (
               <button
                 key={tab}
+                type="button"
                 onClick={() => setFilter(tab)}
                 className={`px-2.5 py-1 text-xs rounded capitalize transition-colors ${
                   filter === tab
@@ -371,6 +374,7 @@ function AgentAllowlistCard({
             {t('addPattern')}
           </Button>
           <button
+            type="button"
             onClick={onRemoveAgent}
             className="text-xs text-muted-foreground hover:text-red-400 transition-colors px-1"
             title="Remove agent"
@@ -398,6 +402,7 @@ function AgentAllowlistCard({
                 className="flex-1 font-mono bg-secondary border border-border rounded px-2 py-1 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
               />
               <button
+                type="button"
                 onClick={() => onRemovePattern(index)}
                 className="text-xs text-muted-foreground hover:text-red-400 transition-colors px-1.5"
                 title="Remove pattern"

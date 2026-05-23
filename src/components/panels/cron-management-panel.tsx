@@ -766,11 +766,13 @@ export function CronManagementPanel() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('searchPlaceholder')}
+                aria-label="Search cron jobs"
                 className="px-3 py-2 border border-border rounded-md bg-background text-foreground text-sm"
               />
               <select
                 value={agentFilter}
                 onChange={(e) => setAgentFilter(e.target.value)}
+                aria-label="Filter by agent"
                 className="px-3 py-2 border border-border rounded-md bg-background text-foreground text-sm"
               >
                 <option value="all">{t('allAgents')}</option>
@@ -1343,6 +1345,7 @@ export function CronManagementPanel() {
                 setRunHistoryQuery(e.target.value)
                 loadRunHistory(selectedJob.id || selectedJob.name, 1, e.target.value)
               }}
+              aria-label="Filter run history"
               placeholder={t('filterRunsPlaceholder')}
               className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground text-sm"
             />
@@ -1421,6 +1424,7 @@ export function CronManagementPanel() {
                   value={newJob.name}
                   onChange={(e) => setNewJob(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="e.g., daily-backup, system-check"
+                  aria-label="Job name"
                   className={`w-full px-3 py-2 border rounded-md bg-background text-foreground ${formErrors.name ? 'border-red-500' : 'border-border'}`}
                 />
                 {formErrors.name && <div className="mt-1 text-xs text-red-400">{formErrors.name}</div>}
@@ -1434,11 +1438,13 @@ export function CronManagementPanel() {
                     value={newJob.schedule}
                     onChange={(e) => setNewJob(prev => ({ ...prev, schedule: e.target.value }))}
                     placeholder="0 * * * *"
+                    aria-label="Cron schedule"
                     className={`flex-1 px-3 py-2 border rounded-md bg-background text-foreground font-mono ${formErrors.schedule ? 'border-red-500' : 'border-border'}`}
                   />
                   <select
                     value=""
                     onChange={(e) => e.target.value && setNewJob(prev => ({ ...prev, schedule: e.target.value }))}
+                    aria-label="Quick schedule select"
                     className="px-3 py-2 border border-border rounded-md bg-background text-foreground"
                   >
                     <option value="">{t('quickSelect')}</option>
@@ -1462,6 +1468,7 @@ export function CronManagementPanel() {
                   value={newJob.command}
                   onChange={(e) => setNewJob(prev => ({ ...prev, command: e.target.value }))}
                   placeholder="cd /path/to/script && ./script.sh"
+                  aria-label="Command"
                   className={`w-full px-3 py-2 border rounded-md bg-background text-foreground font-mono h-24 ${formErrors.command ? 'border-red-500' : 'border-border'}`}
                 />
                 {formErrors.command && <div className="mt-1 text-xs text-red-400">{formErrors.command}</div>}
@@ -1475,6 +1482,7 @@ export function CronManagementPanel() {
                   onChange={(e) => setNewJob(prev => ({ ...prev, model: e.target.value }))}
                   list="cron-model-suggestions"
                   placeholder="anthropic/claude-sonnet-4-20250514"
+                  aria-label="Model"
                   className={`w-full px-3 py-2 border rounded-md bg-background text-foreground font-mono text-sm ${formErrors.model ? 'border-red-500' : 'border-border'}`}
                 />
                 <datalist id="cron-model-suggestions">
@@ -1499,6 +1507,7 @@ export function CronManagementPanel() {
                     value={newJob.staggerSeconds}
                     onChange={(e) => setNewJob(prev => ({ ...prev, staggerSeconds: e.target.value }))}
                     placeholder="0"
+                    aria-label="Stagger seconds"
                     className={`w-32 px-3 py-2 border rounded-md bg-background text-foreground font-mono text-sm ${formErrors.staggerSeconds ? 'border-red-500' : 'border-border'}`}
                   />
                   <span className="text-sm text-muted-foreground">{t('seconds')}</span>
@@ -1519,6 +1528,7 @@ export function CronManagementPanel() {
                   value={newJob.description}
                   onChange={(e) => setNewJob(prev => ({ ...prev, description: e.target.value }))}
                   placeholder={t('descriptionPlaceholder')}
+                  aria-label="Description"
                   className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground"
                 />
               </div>

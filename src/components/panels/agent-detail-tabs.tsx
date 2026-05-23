@@ -143,6 +143,7 @@ export function OverviewTab({
             {(['idle', 'busy', 'offline'] as const).map(status => (
               <button
                 key={status}
+                type="button"
                 onClick={() => onStatusUpdate(agent.name, status)}
                 className={`px-3 py-1 text-xs rounded-full border transition-colors ${
                   agent.status === status
@@ -157,6 +158,7 @@ export function OverviewTab({
             ))}
             {agent.session_key && (
               <button
+                type="button"
                 onClick={() => onWakeAgent(agent.name, agent.session_key!)}
                 className="ml-auto px-3 py-1 text-xs rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 transition-colors"
               >
@@ -164,6 +166,7 @@ export function OverviewTab({
               </button>
             )}
             <button
+              type="button"
               onClick={onPerformHeartbeat}
               disabled={loadingHeartbeat}
               className="px-3 py-1 text-xs rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors disabled:opacity-50 ml-auto"
@@ -2037,6 +2040,7 @@ export function ConfigTab({
                     <span key={a} className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-violet-500/10 text-violet-400 rounded border border-violet-500/20">
                       {a}
                       <button
+                        type="button"
                         onClick={() => {
                           setConfig((prev: any) => {
                             const sa = { ...(prev.subagents || {}) }
@@ -2283,6 +2287,7 @@ export function FilesTab({ agent }: { agent: Agent }) {
           {files.map(file => (
             <button
               key={file.name}
+              type="button"
               onClick={() => selectFile(file.name)}
               className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
                 activeFile === file.name
@@ -2446,7 +2451,7 @@ export function ToolsTab({ agent }: { agent: Agent }) {
           {allowList.map((tool, i) => (
             <span key={`${tool}-${i}`} className="px-2 py-0.5 text-xs bg-green-500/10 text-green-400 rounded border border-green-500/20 flex items-center gap-1">
               {tool}
-              <button onClick={() => removeFromList(allowList, setAllowList, i)} className="text-green-400/60 hover:text-green-400 ml-0.5">x</button>
+              <button type="button" onClick={() => removeFromList(allowList, setAllowList, i)} className="text-green-400/60 hover:text-green-400 ml-0.5">x</button>
             </span>
           ))}
           {allowList.length === 0 && <span className="text-xs text-muted-foreground">{t('noExplicitAllowList')}</span>}
@@ -2479,7 +2484,7 @@ export function ToolsTab({ agent }: { agent: Agent }) {
           {alsoAllowList.map((tool, i) => (
             <span key={`${tool}-${i}`} className="px-2 py-0.5 text-xs bg-cyan-500/10 text-cyan-400 rounded border border-cyan-500/20 flex items-center gap-1">
               {tool}
-              <button onClick={() => removeFromList(alsoAllowList, setAlsoAllowList, i)} className="text-cyan-400/60 hover:text-cyan-400 ml-0.5">x</button>
+              <button type="button" onClick={() => removeFromList(alsoAllowList, setAlsoAllowList, i)} className="text-cyan-400/60 hover:text-cyan-400 ml-0.5">x</button>
             </span>
           ))}
           {alsoAllowList.length === 0 && <span className="text-xs text-muted-foreground">{t('none')}</span>}
@@ -2493,7 +2498,7 @@ export function ToolsTab({ agent }: { agent: Agent }) {
           {denyList.map((tool, i) => (
             <span key={`${tool}-${i}`} className="px-2 py-0.5 text-xs bg-red-500/10 text-red-400 rounded border border-red-500/20 flex items-center gap-1">
               {tool}
-              <button onClick={() => removeFromList(denyList, setDenyList, i)} className="text-red-400/60 hover:text-red-400 ml-0.5">x</button>
+              <button type="button" onClick={() => removeFromList(denyList, setDenyList, i)} className="text-red-400/60 hover:text-red-400 ml-0.5">x</button>
             </span>
           ))}
           {denyList.length === 0 && <span className="text-xs text-muted-foreground">{t('noDeniedTools')}</span>}
@@ -2929,6 +2934,7 @@ export function ModelsTab({ agent }: { agent: Agent }) {
                 <span className="text-xs text-muted-foreground w-5">{i + 1}.</span>
                 <span className="flex-1 font-mono text-xs text-foreground">{fb}</span>
                 <button
+                  type="button"
                   onClick={() => moveFallback(i, -1)}
                   disabled={i === 0}
                   className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-30 px-1"
@@ -2937,6 +2943,7 @@ export function ModelsTab({ agent }: { agent: Agent }) {
                   ^
                 </button>
                 <button
+                  type="button"
                   onClick={() => moveFallback(i, 1)}
                   disabled={i === fallbacks.length - 1}
                   className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-30 px-1"
@@ -2945,6 +2952,7 @@ export function ModelsTab({ agent }: { agent: Agent }) {
                   v
                 </button>
                 <button
+                  type="button"
                   onClick={() => removeFallback(i)}
                   className="text-xs text-red-400/60 hover:text-red-400 px-1"
                   title={t('remove')}

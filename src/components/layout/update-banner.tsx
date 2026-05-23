@@ -91,6 +91,7 @@ export function UpdateBanner() {
       {!isbusy && (
         <>
           <button
+            type="button"
             onClick={handleUpdate}
             disabled={isbusy}
             className="shrink-0 text-2xs font-medium text-emerald-900 bg-emerald-500 hover:bg-emerald-400 px-2.5 py-1 rounded transition-colors"

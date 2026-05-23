@@ -918,6 +918,7 @@ export function SettingsPanel() {
                     ) : isBooleanish ? (
                     <button
                       type="button"
+                      aria-label={`Toggle ${setting.key}`}
                       onClick={() => handleEdit(setting.key, currentValue === 'true' ? 'false' : 'true')}
                       className={`w-10 h-5 rounded-full relative transition-colors select-none ${
                         currentValue === 'true' ? 'bg-primary' : 'bg-muted'
@@ -930,6 +931,7 @@ export function SettingsPanel() {
                   ) : isNumeric ? (
                     <input
                       type="number"
+                      aria-label={setting.key}
                       value={currentValue}
                       onChange={e => handleEdit(setting.key, e.target.value)}
                       className="w-24 px-2 py-1 text-sm text-right bg-background border border-border rounded-md focus:border-primary focus:outline-none font-mono"
@@ -937,6 +939,7 @@ export function SettingsPanel() {
                   ) : (
                     <input
                       type="text"
+                      aria-label={setting.key}
                       value={currentValue}
                       onChange={e => handleEdit(setting.key, e.target.value)}
                       className="w-48 px-2 py-1 text-sm bg-background border border-border rounded-md focus:border-primary focus:outline-none"

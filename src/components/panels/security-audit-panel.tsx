@@ -142,6 +142,7 @@ function ScanCategoryRow({ label, icon, category, failingCount }: {
   return (
     <div className="border border-border/50 rounded-lg overflow-hidden">
       <button
+        type="button"
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-secondary/50 transition-colors"
       >

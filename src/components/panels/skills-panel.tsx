@@ -412,12 +412,14 @@ export function SkillsPanel() {
         </div>
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={() => setActiveTab('installed')}
             className={`px-3 py-1.5 text-xs rounded-md transition-colors ${activeTab === 'installed' ? 'bg-primary text-primary-foreground' : 'bg-secondary/50 text-muted-foreground hover:text-foreground'}`}
           >
             {t('tabInstalled')}
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('registry')}
             className={`px-3 py-1.5 text-xs rounded-md transition-colors ${activeTab === 'registry' ? 'bg-primary text-primary-foreground' : 'bg-secondary/50 text-muted-foreground hover:text-foreground'}`}
           >
@@ -451,6 +453,7 @@ export function SkillsPanel() {
             />
             {query && (
               <button
+                type="button"
                 onClick={() => setQuery('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground text-xs"
                 title="Clear"
@@ -507,7 +510,7 @@ export function SkillsPanel() {
                       {scanAll.results.error > 0 && <span className="text-destructive">{scanAll.results.error} errors</span>}
                       <span className="text-muted-foreground">— {t('skillsScanned', { count: scanAll.total })}</span>
                     </div>
-                    <button onClick={() => setScanAll(null)} className="text-2xs text-muted-foreground/50 hover:text-foreground">{t('dismiss')}</button>
+                    <button type="button" onClick={() => setScanAll(null)} className="text-2xs text-muted-foreground/50 hover:text-foreground">{t('dismiss')}</button>
                   </div>
                 )}
               </div>
@@ -555,6 +558,7 @@ export function SkillsPanel() {
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                 {activeRoot && (
                   <button
+                    type="button"
                     onClick={() => setActiveRoot(null)}
                     className="col-span-full text-left text-2xs text-primary hover:underline"
                   >
@@ -564,6 +568,7 @@ export function SkillsPanel() {
                 {(skillGroups || []).filter(g => g.skills.length > 0 || ['user-agents', 'user-codex', 'openclaw', 'workspace'].includes(g.source) || g.source.startsWith('workspace-')).map((group) => (
                   <button
                     key={group.source}
+                    type="button"
                     onClick={() => setActiveRoot(activeRoot === group.source ? null : group.source)}
                     className={`rounded-lg border bg-card p-3 text-left transition-colors ${
                       activeRoot === group.source

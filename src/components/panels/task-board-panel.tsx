@@ -360,6 +360,7 @@ function DunkItButton({ taskId, onDunked }: { taskId: number; onDunked: (id: num
 
   return (
     <button
+      type="button"
       onClick={handleClick}
       disabled={phase !== 'idle' && phase !== 'error'}
       title={t('dunkIt')}
@@ -783,6 +784,7 @@ export function TaskBoardPanel() {
           <h2 className="text-xl font-bold text-foreground">{t('title')}</h2>
           {gnapStatus?.enabled && (
             <button
+              type="button"
               onClick={handleGnapSync}
               disabled={gnapSyncing}
               className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 transition-colors disabled:opacity-50"
@@ -1500,6 +1502,7 @@ function TaskDetailModal({
               <p className="text-2xs text-muted-foreground">Dispatch attempts: {task.dispatch_attempts}</p>
             )}
             <button
+              type="button"
               onClick={async () => {
                 try {
                   const res = await fetch(`/api/tasks/${task.id}`, {
@@ -1947,6 +1950,7 @@ function ClaudeCodeTasksSection() {
   return (
     <div className="mt-4 border border-border rounded-lg overflow-hidden">
       <button
+        type="button"
         onClick={() => setExpanded(prev => !prev)}
         className="w-full flex items-center justify-between px-4 py-3 bg-card hover:bg-secondary/50 transition-colors text-left"
       >
@@ -2019,6 +2023,7 @@ function HermesCronSection() {
   return (
     <div className="mt-4 border border-border rounded-lg overflow-hidden">
       <button
+        type="button"
         onClick={() => setExpanded(prev => !prev)}
         className="w-full flex items-center justify-between px-4 py-3 bg-card hover:bg-secondary/50 transition-colors text-left"
       >

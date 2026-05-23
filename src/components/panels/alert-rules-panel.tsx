@@ -250,6 +250,7 @@ function RuleCard({ rule, onToggle, onDelete }: { rule: AlertRule; onToggle: () 
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           <button
+            type="button"
             onClick={onToggle}
             className={`w-10 h-5 rounded-full transition-smooth relative ${
               rule.enabled ? 'bg-green-500' : 'bg-muted'

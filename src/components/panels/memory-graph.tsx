@@ -347,7 +347,7 @@ export function MemoryGraph() {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-3" style={{ background: '#11111b' }}>
         <span className="text-[#f38ba8] text-sm">{error}</span>
-        <button onClick={fetchData} className="px-3 py-1.5 text-xs rounded-md bg-[#1e1e2e] border border-[#45475a] text-[#cdd6f4] hover:border-[#cba6f7]/50 transition-colors">
+        <button type="button" onClick={fetchData} className="px-3 py-1.5 text-xs rounded-md bg-[#1e1e2e] border border-[#45475a] text-[#cdd6f4] hover:border-[#cba6f7]/50 transition-colors">
           {t('retry')}
         </button>
       </div>
@@ -396,6 +396,7 @@ export function MemoryGraph() {
       {/* Floating breadcrumb / navigation bar (top-left) */}
       <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10">
         <button
+          type="button"
           onClick={goBack}
           className={`px-2.5 py-1 text-[11px] font-mono rounded-md backdrop-blur-xl transition-all ${
             selectedAgent === 'all'
@@ -456,6 +457,7 @@ export function MemoryGraph() {
             <div className="flex items-center justify-between gap-4 mb-2">
               <h3 className="text-[11px] font-mono text-[#cdd6f4] truncate">{selectedFile.path}</h3>
               <button
+                type="button"
                 onClick={() => setSelectedFile(null)}
                 className="text-[#6c7086] hover:text-[#cdd6f4] text-xs transition-colors shrink-0"
               >

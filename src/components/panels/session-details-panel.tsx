@@ -440,6 +440,7 @@ export function SessionDetailsPanel() {
                             </div>
                           ) : (
                             <button
+                              type="button"
                               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation()

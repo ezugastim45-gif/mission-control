@@ -322,6 +322,7 @@ export function SecurityScanCard({ compact = false, autoScan = false }: { compac
           return (
             <div key={key} className="border border-border/50 rounded-lg overflow-hidden">
               <button
+                type="button"
                 onClick={() => setExpandedCategory(isExpanded ? null : key)}
                 className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-surface-1/50 transition-colors"
               >
@@ -362,6 +363,7 @@ export function SecurityScanCard({ compact = false, autoScan = false }: { compac
                             <p className="text-xs text-void-cyan/70 flex-1 min-w-0">Fix: {check.fix}</p>
                             {FIXABLE_IDS.has(check.id) && (
                               <button
+                                type="button"
                                 onClick={(e) => { e.stopPropagation(); runFix([check.id]) }}
                                 disabled={fixing !== null}
                                 className="shrink-0 px-1.5 py-0.5 text-2xs rounded border border-void-cyan/30 text-void-cyan hover:bg-void-cyan/10 transition-colors disabled:opacity-50"
@@ -371,6 +373,7 @@ export function SecurityScanCard({ compact = false, autoScan = false }: { compac
                               </button>
                             )}
                             <button
+                              type="button"
                               onClick={(e) => { e.stopPropagation(); copyFix(check.fix, check.id) }}
                               className="shrink-0 px-1.5 py-0.5 text-2xs rounded border border-border/50 text-muted-foreground hover:text-foreground hover:border-border transition-colors"
                               title="Copy fix command"

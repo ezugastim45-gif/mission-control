@@ -565,12 +565,14 @@ export function TokenDashboardPanel() {
           <div className="flex items-center gap-4">
             <div className="flex rounded-lg border border-border overflow-hidden">
               <button
+                type="button"
                 onClick={() => setView('overview')}
                 className={`px-3 py-1.5 text-xs font-medium transition-colors ${view === 'overview' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:text-foreground'}`}
               >
                 {t('viewOverview')}
               </button>
               <button
+                type="button"
                 onClick={() => setView('sessions')}
                 className={`px-3 py-1.5 text-xs font-medium transition-colors ${view === 'sessions' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:text-foreground'}`}
               >
@@ -599,6 +601,7 @@ export function TokenDashboardPanel() {
           {availableModels.map(model => (
             <button
               key={`model-${model}`}
+              type="button"
               onClick={() => toggleModelFilter(model)}
               className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
                 modelFilters.has(model)
@@ -619,6 +622,7 @@ export function TokenDashboardPanel() {
             return (
               <button
                 key={`session-${sessionId}`}
+                type="button"
                 onClick={() => toggleSessionFilter(sessionId)}
                 className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
                   sessionFilters.has(sessionId)
@@ -633,6 +637,7 @@ export function TokenDashboardPanel() {
           })}
           {hasActiveFilters && (
             <button
+              type="button"
               onClick={clearAllFilters}
               className="px-2.5 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 transition-colors"
             >
@@ -800,12 +805,14 @@ export function TokenDashboardPanel() {
                   )}
                   <div className="flex rounded-md border border-border overflow-hidden">
                     <button
+                      type="button"
                       onClick={() => setChartMode('incremental')}
                       className={`px-2 py-1 text-[10px] font-medium ${chartMode === 'incremental' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:text-foreground'}`}
                     >
                       {t('perTurnButton')}
                     </button>
                     <button
+                      type="button"
                       onClick={() => setChartMode('cumulative')}
                       className={`px-2 py-1 text-[10px] font-medium ${chartMode === 'cumulative' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:text-foreground'}`}
                     >

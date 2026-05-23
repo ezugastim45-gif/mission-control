@@ -260,6 +260,7 @@ export function AgentRuntimesSection({ showFeedback }: Props) {
 
                     {(rt.installed || justInstalled) && (
                       <button
+                        type="button"
                         onClick={() => setSetupRuntime(rt.id as 'openclaw' | 'hermes' | 'claude' | 'codex' | 'opencode')}
                         className="text-2xs mt-1.5 px-2 py-1 rounded border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                       >
@@ -279,6 +280,7 @@ export function AgentRuntimesSection({ showFeedback }: Props) {
                     {job?.output && !isInstalling && (
                       <div className="mt-2">
                         <button
+                          type="button"
                           onClick={() => setExpandedOutput(expandedOutput === rt.id ? null : rt.id)}
                           className="text-2xs text-muted-foreground/50 hover:text-muted-foreground underline"
                         >

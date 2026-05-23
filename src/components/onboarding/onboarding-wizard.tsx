@@ -476,6 +476,7 @@ function StepInterfaceMode({ isGateway, onNext, onBack }: {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* Essential card */}
           <button
+            type="button"
             onClick={() => handleSelect('essential')}
             className={`relative p-4 rounded-lg border text-left transition-all ${
               selected === 'essential'
@@ -503,6 +504,7 @@ function StepInterfaceMode({ isGateway, onNext, onBack }: {
 
           {/* Full card */}
           <button
+            type="button"
             onClick={() => handleSelect('full')}
             className={`relative p-4 rounded-lg border text-left transition-all ${
               selected === 'full'
