@@ -1014,11 +1014,10 @@ export function TaskBoardPanel() {
       )}
 
       {/* Kanban Board */}
-      <div className="flex-1 min-h-0 flex gap-4 p-4 overflow-x-auto" role="region" aria-label={t('taskBoard')}>
+      <section className="flex-1 min-h-0 flex gap-4 p-4 overflow-x-auto" aria-label={t('taskBoard')}>
         {statusColumns.map(column => (
-          <div
+          <section
             key={column.key}
-            role="region"
             aria-label={t('columnAriaLabel', { title: column.title, count: tasksByStatus[column.key]?.length || 0 })}
             className="flex-1 min-w-80 min-h-0 bg-surface-0 border border-border/60 rounded-xl flex flex-col transition-colors duration-200 [&.drag-over]:border-primary/40 [&.drag-over]:bg-primary/[0.02]"
             onDragEnter={(e) => handleDragEnter(e, column.key)}
@@ -1208,9 +1207,9 @@ export function TaskBoardPanel() {
                 </div>
               )}
             </div>
-          </div>
+          </section>
         ))}
-      </div>
+      </section>
 
       {/* Claude Code Tasks */}
       <ClaudeCodeTasksSection />
@@ -1436,7 +1435,7 @@ function TaskDetailModal({
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}>
       <button type="button" aria-label="Close modal" className="absolute inset-0 block w-full border-0 p-0 bg-transparent cursor-default" onClick={onClose} />
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="task-detail-title" className="bg-card border border-border rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/30">
+      <dialog open ref={dialogRef} aria-modal="true" aria-labelledby="task-detail-title" className="bg-card border border-border rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/30">
         {/* Header */}
         <div className="px-6 pt-5 pb-4 border-b border-border/50">
           <div className="flex justify-between items-start gap-4">
@@ -1834,7 +1833,7 @@ function TaskDetailModal({
             </div>
           )}
         </div>
-      </div>
+      </dialog>
     </div>
   )
 }
@@ -2172,7 +2171,7 @@ function CreateTaskModal({
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}>
       <button type="button" aria-label="Close modal" className="absolute inset-0 block w-full border-0 p-0 bg-transparent cursor-default" onClick={onClose} />
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="create-task-title" className="bg-card border border-border rounded-lg max-w-md w-full">
+      <dialog open ref={dialogRef} aria-modal="true" aria-labelledby="create-task-title" className="bg-card border border-border rounded-lg max-w-md w-full">
         <form onSubmit={handleSubmit} className="p-6">
           <h3 id="create-task-title" className="text-xl font-semibold text-foreground mb-4">{t('createNewTask')}</h3>
           
@@ -2337,7 +2336,7 @@ function CreateTaskModal({
             </Button>
           </div>
         </form>
-      </div>
+      </dialog>
     </div>
   )
 }
@@ -2413,7 +2412,7 @@ function EditTaskModal({
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}>
       <button type="button" aria-label="Close modal" className="absolute inset-0 block w-full border-0 p-0 bg-transparent cursor-default" onClick={onClose} />
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="edit-task-title" className="bg-card border border-border rounded-lg max-w-md w-full">
+      <dialog open ref={dialogRef} aria-modal="true" aria-labelledby="edit-task-title" className="bg-card border border-border rounded-lg max-w-md w-full">
         <form onSubmit={handleSubmit} className="p-6">
           <h3 id="edit-task-title" className="text-xl font-semibold text-foreground mb-4">{t('editTask')}</h3>
 
@@ -2556,7 +2555,7 @@ function EditTaskModal({
             </Button>
           </div>
         </form>
-      </div>
+      </dialog>
     </div>
   )
 }

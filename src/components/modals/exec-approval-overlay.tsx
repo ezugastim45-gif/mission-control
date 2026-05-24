@@ -113,9 +113,9 @@ export function ExecApprovalOverlay() {
     : null
 
   return (
-    <div
+    <dialog
+      open
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-      role="dialog"
       aria-live="polite"
       aria-label="Execution approval required"
     >
@@ -197,6 +197,6 @@ export function ExecApprovalOverlay() {
           </Button>
         </div>
       </div>
-    </div>
+    </dialog>
   )
 }

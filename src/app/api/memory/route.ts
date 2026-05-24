@@ -114,25 +114,27 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ tree })
       }
       if (MEMORY_ALLOWED_PREFIXES.length) {
-        const tree: MemoryFile[] = []
-        for (const prefix of MEMORY_ALLOWED_PREFIXES) {
-          const folder = prefix.replace(/\/$/, '')
-          const fullPath = join(MEMORY_PATH, folder)
-          if (!existsSync(fullPath)) continue
-          try {
-            const stats = await stat(fullPath)
-            if (!stats.isDirectory()) continue
-            tree.push({
-              path: folder,
-              name: folder,
-              type: 'directory',
-              modified: stats.mtime.getTime(),
-              children: await buildFileTree(fullPath, folder, maxDepth),
-            })
-          } catch {
-            // Skip unreadable roots
-          }
-        }
+        const prefixResults = await Promise.all(
+          MEMORY_ALLOWED_PREFIXES.map(async prefix => {
+            const folder = prefix.replace(/\/$/, '')
+            const fullPath = join(MEMORY_PATH, folder)
+            if (!existsSync(fullPath)) return null
+            try {
+              const stats = await stat(fullPath)
+              if (!stats.isDirectory()) return null
+              return {
+                path: folder,
+                name: folder,
+                type: 'directory' as const,
+                modified: stats.mtime.getTime(),
+                children: await buildFileTree(fullPath, folder, maxDepth),
+              }
+            } catch {
+              return null
+            }
+          })
+        )
+        const tree: MemoryFile[] = prefixResults.filter(Boolean) as MemoryFile[]
         return NextResponse.json({ tree })
       }
       const tree = await buildFileTree(MEMORY_PATH, '', maxDepth)

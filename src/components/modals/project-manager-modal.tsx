@@ -181,18 +181,14 @@ export function ProjectManagerModal({
       const toAdd = newAgents.filter(a => !currentAgents.includes(a))
       const toRemove = currentAgents.filter(a => !newAgents.includes(a))
 
-      for (const agentName of toAdd) {
-        await fetch(`/api/projects/${project.id}/agents`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ agent_name: agentName })
-        })
-      }
-      for (const agentName of toRemove) {
-        await fetch(`/api/projects/${project.id}/agents?agent_name=${encodeURIComponent(agentName)}`, {
-          method: 'DELETE'
-        })
-      }
+      await Promise.all(toAdd.map(agentName => fetch(`/api/projects/${project.id}/agents`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agent_name: agentName })
+      })))
+      await Promise.all(toRemove.map(agentName => fetch(`/api/projects/${project.id}/agents?agent_name=${encodeURIComponent(agentName)}`, {
+        method: 'DELETE'
+      })))
 
       setEditingId(null)
       await load()
@@ -216,7 +212,7 @@ export function ProjectManagerModal({
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}>
       <button type="button" aria-label="Close project manager" className="absolute inset-0 block w-full border-0 p-0 bg-transparent cursor-default" onClick={onClose} />
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="projects-title" className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <dialog open ref={dialogRef} aria-modal="true" aria-labelledby="projects-title" className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h3 id="projects-title" className="text-xl font-semibold text-foreground">Project Management</h3>
@@ -264,9 +260,8 @@ export function ProjectManagerModal({
             <div className="space-y-2">
               {projects.map((project) => (
                 <div key={project.id} className="border border-border rounded-md overflow-hidden">
-                  <div
-                    role="button"
-                    tabIndex={0}
+                  <button
+                    type="button"
                     className="flex items-center justify-between p-3 cursor-pointer hover:bg-secondary/30 transition-smooth"
                     onClick={() => startEditing(project)}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') startEditing(project) }}
@@ -320,7 +315,7 @@ export function ProjectManagerModal({
                         </div>
                       )}
                     </div>
-                  </div>
+                  </button>
 
                   {/* Inline Edit Section */}
                   {editingId === project.id && (
@@ -446,7 +441,7 @@ export function ProjectManagerModal({
             </div>
           )}
         </div>
-      </div>
+      </dialog>
     </div>
   )
 }

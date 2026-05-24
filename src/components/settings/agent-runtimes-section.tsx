@@ -59,14 +59,14 @@ export function AgentRuntimesSection({ showFeedback }: Props) {
     if (running.length === 0) return
 
     const interval = setInterval(async () => {
-      for (const job of running) {
+      await Promise.all(running.map(async job => {
         try {
           const res = await fetch('/api/agent-runtimes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'job-status', jobId: job.id }),
           })
-          if (!res.ok) continue
+          if (!res.ok) return
           const data = await res.json()
           const updatedJob = data.job
           if (updatedJob) {
@@ -82,7 +82,7 @@ export function AgentRuntimesSection({ showFeedback }: Props) {
         } catch {
           // ignore
         }
-      }
+      }))
     }, 1000)
 
     return () => clearInterval(interval)

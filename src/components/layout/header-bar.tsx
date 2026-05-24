@@ -386,10 +386,10 @@ export function HeaderBar() {
 
       {/* Search overlay (portal to body to avoid clipping/stacking context bugs) */}
       {searchOpen && isMounted && createPortal(
-        <div
+        <dialog
+          open
           ref={searchRef}
           className="fixed inset-0 z-[9999] isolate"
-          role="dialog"
           aria-modal="true"
           aria-label="Command search"
         >
@@ -448,7 +448,7 @@ export function HeaderBar() {
               </div>
             </div>
           </div>
-        </div>,
+        </dialog>,
         document.body
       )}
     </header>

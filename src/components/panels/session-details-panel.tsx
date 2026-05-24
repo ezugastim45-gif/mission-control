@@ -321,10 +321,9 @@ export function SessionDetailsPanel() {
               const isExpanded = expandedSession === session.id
 
               return (
-                <div
+                <button
                   key={session.id}
-                  role="button"
-                  tabIndex={0}
+                  type="button"
                   className={`bg-card border border-border rounded-lg p-6 cursor-pointer transition-all ${
                     selectedSession === session.id
                       ? 'ring-2 ring-primary/50 border-primary/30'
@@ -660,7 +659,7 @@ export function SessionDetailsPanel() {
                       </div>
                     )}
                   </div>
-                </div>
+                </button>
               )
             })
           )}

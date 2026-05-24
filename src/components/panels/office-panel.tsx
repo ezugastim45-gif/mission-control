@@ -1909,6 +1909,7 @@ export function OfficePanel() {
                     alt=""
                     aria-hidden="true"
                     fill
+                    sizes="100%"
                     unoptimized
                     className="object-contain opacity-95"
                     style={{ imageRendering: 'pixelated', filter: themePalette.spriteFilter }}
@@ -2046,9 +2047,8 @@ export function OfficePanel() {
             </div>
 
             {showMinimap && (
-            <div
-              role="button"
-              tabIndex={0}
+            <button
+              type="button"
               aria-label="Minimap — click to navigate"
               className="absolute right-3 bottom-3 z-30 w-44 h-28 rounded-md border border-void-cyan/15 bg-card/85 backdrop-blur-sm p-1.5 cursor-pointer"
               onMouseDown={(event) => event.stopPropagation()}
@@ -2087,7 +2087,7 @@ export function OfficePanel() {
                   />
                 ))}
               </div>
-            </div>
+            </button>
             )}
 
             {showEvents && (
@@ -2230,7 +2230,7 @@ export function OfficePanel() {
       )}
 
       {selectedAgent && (
-        <div role="dialog" aria-modal="true" aria-label="Agent details" className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onKeyDown={(e) => { if (e.key === 'Escape') setSelectedAgent(null) }}>
+        <dialog open aria-modal="true" aria-label="Agent details" className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onKeyDown={(e) => { if (e.key === 'Escape') setSelectedAgent(null) }}>
           <button type="button" aria-label="Close agent details" className="absolute inset-0 block w-full border-0 p-0 bg-transparent cursor-default" onClick={() => setSelectedAgent(null)} />
           <div role="presentation" className="bg-card border border-border rounded-lg max-w-sm w-full p-6 shadow-2xl" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-4">
@@ -2335,11 +2335,11 @@ export function OfficePanel() {
               )}
             </div>
           </div>
-        </div>
+        </dialog>
       )}
 
       {showFlightDeckModal && (
-        <div role="dialog" aria-modal="true" aria-label="Flight deck setup" className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4" onKeyDown={(e) => { if (e.key === 'Escape') setShowFlightDeckModal(false) }}>
+        <dialog open aria-modal="true" aria-label="Flight deck setup" className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4" onKeyDown={(e) => { if (e.key === 'Escape') setShowFlightDeckModal(false) }}>
           <button type="button" aria-label="Close flight deck modal" className="absolute inset-0 block w-full border-0 p-0 bg-transparent cursor-default" onClick={() => setShowFlightDeckModal(false)} />
           <div role="presentation" className="bg-card border border-border rounded-lg max-w-md w-full p-6 shadow-2xl" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between gap-3">
@@ -2380,7 +2380,7 @@ export function OfficePanel() {
               </a>
             </div>
           </div>
-        </div>
+        </dialog>
       )}
 
       {launchToast && (

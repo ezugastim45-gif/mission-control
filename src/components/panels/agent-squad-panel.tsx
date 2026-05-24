@@ -210,10 +210,9 @@ export function AgentSquadPanel() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {agents.map(agent => (
-              <div
+              <button
                 key={agent.id}
-                role="button"
-                tabIndex={0}
+                type="button"
                 className="bg-gray-800 rounded-lg p-4 border-l-4 border-gray-600 hover:bg-gray-750 transition-colors cursor-pointer"
                 onClick={() => setSelectedAgent(agent)}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedAgent(agent) }}
@@ -309,7 +308,7 @@ export function AgentSquadPanel() {
                     {t('sleep')}
                   </Button>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}

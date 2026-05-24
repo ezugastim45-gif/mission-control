@@ -421,10 +421,9 @@ export function AgentSquadPanelPhase3() {
               const taskStatsLine = buildTaskStatParts(agent.taskStats)
 
               return (
-                <div
+                <button
                   key={agent.id}
-                  role="button"
-                  tabIndex={0}
+                  type="button"
                   className="group relative overflow-hidden rounded-xl border border-border/70 bg-card p-4 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-border hover:shadow-lg cursor-pointer"
                   onClick={() => setSelectedAgent(agent)}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedAgent(agent) }}
@@ -539,7 +538,7 @@ export function AgentSquadPanelPhase3() {
                       </Button>
                     </div>
                   </div>
-                </div>
+                </button>
               )
             })}
           </div>
@@ -855,8 +854,8 @@ function AgentDetailModalPhase3({
   }
 
   return (
-    <div
-      role="dialog"
+    <dialog
+      open
       aria-modal="true"
       aria-label="Agent detail"
       className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4"
@@ -1053,7 +1052,7 @@ function AgentDetailModalPhase3({
           )}
         </div>
       </div>
-    </div>
+    </dialog>
   )
 }
 

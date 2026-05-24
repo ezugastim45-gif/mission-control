@@ -238,8 +238,8 @@ export function OnboardingWizard() {
       <button type="button" aria-label="Skip onboarding" className="absolute inset-0 block w-full border-0 p-0 bg-black/82 backdrop-blur-md cursor-default" onClick={skip} />
 
       {/* Modal */}
-      <div
-        role="dialog"
+      <dialog
+        open
         aria-modal="true"
         aria-label="Mission Control onboarding"
         className="relative z-10 my-auto w-full max-w-3xl bg-background border border-border/50 rounded-lg sm:rounded-xl shadow-2xl overflow-hidden flex max-h-[calc(100dvh-1rem)] sm:max-h-[85vh] flex-col"
@@ -297,7 +297,7 @@ export function OnboardingWizard() {
             <StepCredentials isGateway={isGateway} status={credentialStatus} onFinish={finish} onBack={goBack} navigateToPanel={navigateToPanel} onClose={skip} />
           )}
         </div>
-      </div>
+      </dialog>
     </div>,
     document.body
   )
