@@ -562,7 +562,7 @@ export const useMissionControl = create<MissionControlStore>()(
     collapsedGroups: (() => {
       if (typeof window === 'undefined') return [] as string[]
       try {
-        const raw = localStorage.getItem('mc-sidebar-groups')
+        const raw = localStorage.getItem('mc-sidebar-groups:v1')
         return raw ? JSON.parse(raw) as string[] : []
       } catch { return [] as string[] }
     })(),
@@ -586,7 +586,7 @@ export const useMissionControl = create<MissionControlStore>()(
         const next = state.collapsedGroups.includes(groupId)
           ? state.collapsedGroups.filter(g => g !== groupId)
           : [...state.collapsedGroups, groupId]
-        try { localStorage.setItem('mc-sidebar-groups', JSON.stringify(next)) } catch {}
+        try { localStorage.setItem('mc-sidebar-groups:v1', JSON.stringify(next)) } catch {}
         return { collapsedGroups: next }
       }),
     toggleLiveFeed: () =>

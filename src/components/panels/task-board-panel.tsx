@@ -355,7 +355,7 @@ function DunkItButton({ taskId, onDunked }: { taskId: number; onDunked: (id: num
     color: phase === 'success' ? 'rgb(34 197 94)' : phase === 'error' ? 'rgb(239 68 68)' : 'inherit',
   }), [phase])
 
-  const handleClick = async (e: React.MouseEvent) => {
+  const submitDunk = async (e: React.MouseEvent) => {
     e.stopPropagation()
     if (phase !== 'idle') return
     try {
@@ -379,7 +379,7 @@ function DunkItButton({ taskId, onDunked }: { taskId: number; onDunked: (id: num
   return (
     <button
       type="button"
-      onClick={handleClick}
+      onClick={submitDunk}
       disabled={phase !== 'idle' && phase !== 'error'}
       title={t('dunkIt')}
       style={dunkButtonStyle}

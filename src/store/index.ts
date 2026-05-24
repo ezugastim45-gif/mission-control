@@ -819,7 +819,7 @@ export const useMissionControl = create<MissionControlStore>()(
     activeTenant: (() => {
       if (typeof window === 'undefined') return null
       try {
-        const raw = localStorage.getItem('mc-active-tenant')
+        const raw = localStorage.getItem('mc-active-tenant:v1')
         return raw ? JSON.parse(raw) as Tenant : null
       } catch { return null }
     })(),
@@ -828,9 +828,9 @@ export const useMissionControl = create<MissionControlStore>()(
     setActiveTenant: (tenant) => {
       try {
         if (tenant) {
-          localStorage.setItem('mc-active-tenant', JSON.stringify(tenant))
+          localStorage.setItem('mc-active-tenant:v1', JSON.stringify(tenant))
         } else {
-          localStorage.removeItem('mc-active-tenant')
+          localStorage.removeItem('mc-active-tenant:v1')
         }
       } catch {}
       set({ activeTenant: tenant })
@@ -858,7 +858,7 @@ export const useMissionControl = create<MissionControlStore>()(
     activeProject: (() => {
       if (typeof window === 'undefined') return null
       try {
-        const raw = localStorage.getItem('mc-active-project')
+        const raw = localStorage.getItem('mc-active-project:v1')
         return raw ? JSON.parse(raw) as Project : null
       } catch { return null }
     })(),
@@ -866,9 +866,9 @@ export const useMissionControl = create<MissionControlStore>()(
     setActiveProject: (project) => {
       try {
         if (project) {
-          localStorage.setItem('mc-active-project', JSON.stringify(project))
+          localStorage.setItem('mc-active-project:v1', JSON.stringify(project))
         } else {
-          localStorage.removeItem('mc-active-project')
+          localStorage.removeItem('mc-active-project:v1')
         }
       } catch {}
       set({ activeProject: project })
@@ -919,7 +919,7 @@ export const useMissionControl = create<MissionControlStore>()(
     dashboardLayout: (() => {
       if (typeof window === 'undefined') return null
       try {
-        const raw = localStorage.getItem('mc-dashboard-layout')
+        const raw = localStorage.getItem('mc-dashboard-layout:v1')
         return raw ? JSON.parse(raw) as string[] : null
       } catch { return null }
     })(),
@@ -930,9 +930,9 @@ export const useMissionControl = create<MissionControlStore>()(
         : layoutOrUpdater
       try {
         if (layout) {
-          localStorage.setItem('mc-dashboard-layout', JSON.stringify(layout))
+          localStorage.setItem('mc-dashboard-layout:v1', JSON.stringify(layout))
         } else {
-          localStorage.removeItem('mc-dashboard-layout')
+          localStorage.removeItem('mc-dashboard-layout:v1')
         }
       } catch {}
       set({ dashboardLayout: layout })
@@ -951,7 +951,7 @@ export const useMissionControl = create<MissionControlStore>()(
     collapsedGroups: (() => {
       if (typeof window === 'undefined') return [] as string[]
       try {
-        const raw = localStorage.getItem('mc-sidebar-groups')
+        const raw = localStorage.getItem('mc-sidebar-groups:v1')
         return raw ? JSON.parse(raw) as string[] : []
       } catch { return [] as string[] }
     })(),
@@ -982,7 +982,7 @@ export const useMissionControl = create<MissionControlStore>()(
         const next = state.collapsedGroups.includes(groupId)
           ? state.collapsedGroups.filter(g => g !== groupId)
           : [...state.collapsedGroups, groupId]
-        try { localStorage.setItem('mc-sidebar-groups', JSON.stringify(next)) } catch {}
+        try { localStorage.setItem('mc-sidebar-groups:v1', JSON.stringify(next)) } catch {}
         return { collapsedGroups: next }
       }),
     toggleLiveFeed: () =>

@@ -137,7 +137,7 @@ export function ChatInput({ onSend, onAbort, disabled, agents = EMPTY_AGENTS, is
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const updateMessageText = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value
     setChatInput(value)
 
@@ -295,7 +295,7 @@ export function ChatInput({ onSend, onAbort, disabled, agents = EMPTY_AGENTS, is
         <textarea
           ref={textareaRef}
           value={chatInput}
-          onChange={handleChange}
+          onChange={updateMessageText}
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
           aria-label="Message"
