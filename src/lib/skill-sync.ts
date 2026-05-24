@@ -144,13 +144,14 @@ export async function syncSkillsFromDisk(): Promise<{ ok: boolean; message: stri
     }
 
     // Fetch current DB rows (only local sources, not registry-installed via slug)
-    const localSources = ['user-agents', 'user-codex', 'project-agents', 'project-codex', 'openclaw', 'workspace']
+    const localSourcesSet = new Set<string>(['user-agents', 'user-codex', 'project-agents', 'project-codex', 'openclaw', 'workspace'])
     // Also include any dynamic workspace-* sources from disk
     for (const s of diskSkills) {
-      if (s.source.startsWith('workspace-') && !localSources.includes(s.source)) {
-        localSources.push(s.source)
+      if (s.source.startsWith('workspace-') && !localSourcesSet.has(s.source)) {
+        localSourcesSet.add(s.source)
       }
     }
+    const localSources = Array.from(localSourcesSet)
     const dbRows = db.prepare(
       `SELECT * FROM skills WHERE source IN (${localSources.map(() => '?').join(',')})`
     ).all(...localSources) as SkillRow[]

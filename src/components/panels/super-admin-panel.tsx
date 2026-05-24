@@ -248,6 +248,7 @@ export function SuperAdminPanel() {
     if (isLocal && jobId < 0) {
       setSelectedJobId(jobId)
       setSelectedJobEvents(localJobEventsRef.current[jobId] || [])
+      setOpenActionMenu(null)
       setActiveTab('events')
       return
     }
@@ -258,6 +259,7 @@ export function SuperAdminPanel() {
       if (!res.ok) throw new Error(json?.error || 'Failed to load job details')
       setSelectedJobId(jobId)
       setSelectedJobEvents(Array.isArray(json?.job?.events) ? json.job.events : [])
+      setOpenActionMenu(null)
       setActiveTab('events')
     } catch (e: any) {
       showFeedback(false, e?.message || 'Failed to load job details')
@@ -270,17 +272,6 @@ export function SuperAdminPanel() {
     return () => clearInterval(id)
   }, [load])
 
-  useEffect(() => {
-    setTenantPage(1)
-  }, [tenantSearch, tenantStatusFilter])
-
-  useEffect(() => {
-    setJobPage(1)
-  }, [jobSearch, jobStatusFilter, jobTypeFilter])
-
-  useEffect(() => {
-    setOpenActionMenu(null)
-  }, [activeTab])
 
   const latestByTenant = useMemo(() => {
     const map = new Map<number, ProvisionJob>()
@@ -701,7 +692,7 @@ export function SuperAdminPanel() {
               key={tab}
               variant={activeTab === tab ? 'secondary' : 'ghost'}
               size="sm"
-              onClick={() => setActiveTab(tab)}
+              onClick={() => { setActiveTab(tab); setOpenActionMenu(null) }}
               className={`capitalize ${
                 activeTab === tab
                   ? 'bg-primary/20 text-primary border border-primary/30'
@@ -719,14 +710,14 @@ export function SuperAdminPanel() {
               <div className="flex items-center gap-2">
                 <input
                   value={tenantSearch}
-                  onChange={(e) => setTenantSearch(e.target.value)}
+                  onChange={(e) => { setTenantSearch(e.target.value); setTenantPage(1) }}
                   placeholder={t('searchOrganizations')}
                   aria-label="Search organizations"
                   className="h-8 w-56 px-3 rounded-md bg-secondary border border-border text-xs text-foreground"
                 />
                 <select
                   value={tenantStatusFilter}
-                  onChange={(e) => setTenantStatusFilter(e.target.value)}
+                  onChange={(e) => { setTenantStatusFilter(e.target.value); setTenantPage(1) }}
                   aria-label="Filter by status"
                   className="h-8 px-2 rounded-md bg-secondary border border-border text-xs text-foreground"
                 >
@@ -854,14 +845,14 @@ export function SuperAdminPanel() {
               <div className="flex flex-wrap items-center gap-2">
                 <input
                   value={jobSearch}
-                  onChange={(e) => setJobSearch(e.target.value)}
+                  onChange={(e) => { setJobSearch(e.target.value); setJobPage(1) }}
                   placeholder={t('searchJobs')}
                   aria-label="Search jobs"
                   className="h-8 w-56 px-3 rounded-md bg-secondary border border-border text-xs text-foreground"
                 />
                 <select
                   value={jobStatusFilter}
-                  onChange={(e) => setJobStatusFilter(e.target.value)}
+                  onChange={(e) => { setJobStatusFilter(e.target.value); setJobPage(1) }}
                   aria-label="Filter by status"
                   className="h-8 px-2 rounded-md bg-secondary border border-border text-xs text-foreground"
                 >
@@ -871,7 +862,7 @@ export function SuperAdminPanel() {
                 </select>
                 <select
                   value={jobTypeFilter}
-                  onChange={(e) => setJobTypeFilter(e.target.value)}
+                  onChange={(e) => { setJobTypeFilter(e.target.value); setJobPage(1) }}
                   aria-label="Filter by type"
                   className="h-8 px-2 rounded-md bg-secondary border border-border text-xs text-foreground"
                 >
