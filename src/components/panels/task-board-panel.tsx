@@ -374,7 +374,7 @@ function DunkItButton({ taskId, onDunked }: { taskId: number; onDunked: (id: num
         borderRadius: '4px',
         border: '1px solid',
         cursor: phase === 'idle' ? 'pointer' : 'default',
-        transition: 'all 0.3s ease',
+        transition: 'opacity 0.3s ease, transform 0.3s ease',
         transform: phase === 'success' ? 'scale(1.15)' : phase === 'dismissing' ? 'scale(0.8) translateY(-10px)' : 'scale(1)',
         opacity: phase === 'dismissing' ? 0 : 1,
         borderColor: phase === 'success' ? 'rgb(34 197 94 / 0.5)' : phase === 'error' ? 'rgb(239 68 68 / 0.5)' : 'hsl(var(--border))',
@@ -468,7 +468,7 @@ export function TaskBoardPanel() {
   const t = useTranslations('taskBoard')
   const statusColumns = STATUS_COLUMN_KEYS.map(col => ({ ...col, title: t(col.titleKey as any) }))
   const { tasks: storeTasks, setTasks: storeSetTasks, selectedTask, setSelectedTask, activeProject, availableModels, spawnRequests, addSpawnRequest, updateSpawnRequest, dashboardMode } = useMissionControl()
-  const router = useRouter()
+  const { push: routerPush, replace: routerReplace } = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [agents, setAgents] = useState<Agent[]>([])
@@ -507,11 +507,11 @@ export function TaskBoardPanel() {
     const query = params.toString()
     const href = query ? `${pathname}?${query}` : pathname
     if (mode === 'replace') {
-      router.replace(href)
+      routerReplace(href)
       return
     }
-    router.push(href)
-  }, [pathname, router, searchParams])
+    routerPush(href)
+  }, [pathname, routerPush, routerReplace, searchParams])
 
   // Augment store tasks with aegisApproved flag (computed, not stored)
   const tasks: Task[] = storeTasks.map(t => ({
@@ -540,9 +540,11 @@ export function TaskBoardPanel() {
         throw new Error('Failed to fetch data')
       }
 
-      const tasksData = await tasksResponse.json()
-      const agentsData = await agentsResponse.json()
-      const projectsData = await projectsResponse.json()
+      const [tasksData, agentsData, projectsData] = await Promise.all([
+        tasksResponse.json(),
+        agentsResponse.json(),
+        projectsResponse.json(),
+      ])
 
       const tasksList = tasksData.tasks || []
       const taskIds = tasksList.map((task: Task) => task.id)

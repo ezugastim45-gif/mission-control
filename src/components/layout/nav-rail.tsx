@@ -238,7 +238,6 @@ export function NavRail() {
     <>
       {/* Desktop: Grouped sidebar */}
       <nav
-        role="navigation"
         aria-label="Main navigation"
         className={`hidden md:flex flex-col bg-gradient-to-b from-card to-background border-r border-border shrink-0 transition-all duration-200 ease-in-out ${
           sidebarExpanded ? 'w-[220px]' : 'w-14'
@@ -803,7 +802,7 @@ function OrgRow({ label, initial, active, colorClass, onClick, isActiveOrg, proj
                 <path d="M8 3v10M3 8h10" />
               </svg>
             </div>
-            New project...
+            New project…
           </Button>
         </div>
       )}

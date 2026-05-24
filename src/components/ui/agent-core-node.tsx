@@ -16,7 +16,7 @@ function AgentCoreNodeInner({ data }: NodeProps & { data: CoreNodeData }) {
   const { label = 'CORE', agentCount = 0 } = data ?? {}
 
   return (
-    <div className="relative flex items-center justify-center w-[120px] h-[120px]">
+    <div className="relative flex items-center justify-center size-[120px]">
       {/* Outer ring — slowest pulse */}
       <div className="absolute inset-0 rounded-full border border-void-cyan/20 animate-[edgeGlow_3s_ease-in-out_infinite]" />
 

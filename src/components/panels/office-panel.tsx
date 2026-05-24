@@ -1194,20 +1194,21 @@ export function OfficePanel() {
       const cycle = Math.floor(Date.now() / 14_000)
 
       for (const worker of idleCandidates) {
+        const agentId = worker.agent.id
         const waypoint = LOUNGE_WAYPOINTS[(hashNumber(worker.agent.name) + cycle) % LOUNGE_WAYPOINTS.length]
         enqueueMovement(worker.agent, worker.x, worker.y, waypoint.x, waypoint.y, 2200)
 
         const roamTimers = roamReturnTimersRef.current
-        const existingReturnTimer = roamTimers.get(worker.agent.id)
+        const existingReturnTimer = roamTimers.get(agentId)
         if (existingReturnTimer) clearTimeout(existingReturnTimer)
         const returnTimer = setTimeout(() => {
-          const seat = currentSeatMap.get(worker.agent.id)
+          const seat = currentSeatMap.get(agentId)
           if (seat) {
             enqueueMovement(worker.agent, waypoint.x, waypoint.y, seat.x, seat.y, 2200)
           }
-          roamReturnTimersRef.current.delete(worker.agent.id)
+          roamReturnTimersRef.current.delete(agentId)
         }, 2700)
-        roamTimers.set(worker.agent.id, returnTimer)
+        roamTimers.set(agentId, returnTimer)
       }
     }, 14_000)
     return () => clearInterval(interval)
@@ -1876,9 +1877,14 @@ export function OfficePanel() {
                   style={{ left: `${prop.x}%`, top: `${prop.y}%`, width: `${prop.w}%`, height: `${prop.h}%` }}
                   onClick={(event) => {
                     event.stopPropagation()
-                    const nearest = renderedWorkers
-                      .slice()
-                      .sort((a, b) => Math.hypot(a.x - prop.x, a.y - prop.y) - Math.hypot(b.x - prop.x, b.y - prop.y))[0]
+                    const nearest = renderedWorkers.reduce<typeof renderedWorkers[0] | undefined>(
+                      (best, w) => {
+                        const d = Math.hypot(w.x - prop.x, w.y - prop.y)
+                        if (!best || d < Math.hypot(best.x - prop.x, best.y - prop.y)) return w
+                        return best
+                      },
+                      undefined
+                    )
                     setSelectedHotspot({
                       kind: 'desk',
                       id: prop.id,

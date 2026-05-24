@@ -917,7 +917,7 @@ function AgentDetailModalPhase3({
                           <svg className="size-3 animate-spin" viewBox="0 0 16 16" fill="none">
                             <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" strokeDasharray="28" strokeDashoffset="8" />
                           </svg>
-                          Deleting...
+                          Deleting…
                         </span>
                       ) : 'Delete agent'}
                     </button>
@@ -932,7 +932,7 @@ function AgentDetailModalPhase3({
                           <svg className="size-3 animate-spin" viewBox="0 0 16 16" fill="none">
                             <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" strokeDasharray="28" strokeDashoffset="8" />
                           </svg>
-                          Deleting...
+                          Deleting…
                         </span>
                       ) : 'Delete agent + workspace'}
                     </button>

@@ -74,7 +74,7 @@ export function OrchestrationBar() {
   useEffect(() => { fetchData() }, [fetchData])
 
   // All unique tags across templates
-  const allTags = [...new Set(templates.flatMap(t => t.tags || []))].sort()
+  const allTags = [...new Set(templates.flatMap(t => t.tags || []))].toSorted()
 
   // Filtered templates
   const filteredTemplates = filterTag

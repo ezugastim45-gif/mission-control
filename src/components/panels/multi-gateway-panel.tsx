@@ -448,7 +448,9 @@ export function MultiGatewayPanel() {
   )
 }
 
-function GatewayCard({ gateway, health, historyEntries = [], isProbing, isCurrentlyConnected, onSetPrimary, onDelete, onConnect, onProbe, onUpdateToken }: {
+const EMPTY_HISTORY: GatewayHealthLogEntry[] = []
+
+function GatewayCard({ gateway, health, historyEntries = EMPTY_HISTORY, isProbing, isCurrentlyConnected, onSetPrimary, onDelete, onConnect, onProbe, onUpdateToken }: {
   gateway: Gateway
   health?: GatewayHealthProbe
   historyEntries?: GatewayHealthLogEntry[]

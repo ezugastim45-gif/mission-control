@@ -36,7 +36,7 @@ const LAYOUT_CLASSES: Record<LayoutMode, string> = {
 export function SplitPaneLayout({ panes, onRemovePane, onSwitchToTranscript }: SplitPaneLayoutProps) {
   const [paneModes, setPaneModes] = useState<Record<string, 'readonly' | 'interactive'>>({})
   const [paneViewModes, setPaneViewModes] = useState<Record<string, 'terminal' | 'transcript'>>({})
-  const [layout, setLayout] = useState<LayoutMode>(getLayoutMode(panes.length))
+  const [layout, setLayout] = useState<LayoutMode>(() => getLayoutMode(panes.length))
 
   const visiblePanes = panes.slice(0, 4)
   const effectiveLayout = visiblePanes.length === 1 ? '1' : layout

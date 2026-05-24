@@ -296,7 +296,7 @@ export function ProjectManagerModal({
                     </div>
                     <div className="flex items-center gap-2">
                       {project.assigned_agents && project.assigned_agents.length > 0 && (
-                        <div className="flex -space-x-1">
+                        <div className="flex gap-x-1">
                           {project.assigned_agents.slice(0, 3).map(a => (
                             <div key={a} className="size-5 rounded-full bg-primary/20 text-primary flex items-center justify-center text-[8px] font-bold border border-card" title={a}>
                               {a[0]?.toUpperCase()}

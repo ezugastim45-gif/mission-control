@@ -225,16 +225,16 @@ export function MessageList() {
         <div className="flex gap-2 mt-3">
           <div className="size-7 rounded-full bg-surface-2 flex items-center justify-center flex-shrink-0">
             <div className="flex gap-0.5">
-              <div className="size-1 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '0ms' }} />
-              <div className="size-1 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '150ms' }} />
-              <div className="size-1 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '300ms' }} />
+              <div className="size-1 rounded-full bg-muted-foreground/50 animate-pulse" style={{ animationDelay: '0ms' }} />
+              <div className="size-1 rounded-full bg-muted-foreground/50 animate-pulse" style={{ animationDelay: '150ms' }} />
+              <div className="size-1 rounded-full bg-muted-foreground/50 animate-pulse" style={{ animationDelay: '300ms' }} />
             </div>
           </div>
           <div className="bg-surface-2 rounded-lg rounded-tl-sm px-3 py-2">
             <div className="flex gap-1">
-              <div className="size-1.5 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '0ms' }} />
-              <div className="size-1.5 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '150ms' }} />
-              <div className="size-1.5 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+              <div className="size-1.5 rounded-full bg-muted-foreground/40 animate-pulse" style={{ animationDelay: '0ms' }} />
+              <div className="size-1.5 rounded-full bg-muted-foreground/40 animate-pulse" style={{ animationDelay: '150ms' }} />
+              <div className="size-1.5 rounded-full bg-muted-foreground/40 animate-pulse" style={{ animationDelay: '300ms' }} />
             </div>
           </div>
         </div>

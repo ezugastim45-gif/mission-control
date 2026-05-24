@@ -223,7 +223,7 @@ export function ActivityFeedPanel() {
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(0)
-  const [lastRefresh, setLastRefresh] = useState(Date.now())
+  const [lastRefresh, setLastRefresh] = useState(() => Date.now())
 
   const [selectedAgent, setSelectedAgent] = useState<string>('')
   const [filter, setFilter] = useState({ type: '', limit: 50 })

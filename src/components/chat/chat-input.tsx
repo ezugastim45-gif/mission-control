@@ -13,7 +13,9 @@ interface ChatInputProps {
   isGenerating?: boolean
 }
 
-export function ChatInput({ onSend, onAbort, disabled, agents = [], isGenerating }: ChatInputProps) {
+const EMPTY_AGENTS: Array<{ name: string; role: string }> = []
+
+export function ChatInput({ onSend, onAbort, disabled, agents = EMPTY_AGENTS, isGenerating }: ChatInputProps) {
   const { chatInput, setChatInput, isSendingMessage } = useMissionControl()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)

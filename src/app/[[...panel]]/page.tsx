@@ -123,7 +123,6 @@ export default function Home() {
         <main
           id="main-content"
           className={`flex-1 overflow-auto pb-16 md:pb-0 ${showOnboarding ? 'pointer-events-none select-none blur-[2px] opacity-30' : ''}`}
-          role="main"
           aria-hidden={showOnboarding}
         >
           <div aria-live="polite" className="flex flex-col min-h-full">
