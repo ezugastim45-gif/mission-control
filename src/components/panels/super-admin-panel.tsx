@@ -149,10 +149,12 @@ export function SuperAdminPanel() {
         isLocal ? fetch('/api/scheduler', { cache: 'no-store' }) : Promise.resolve(null),
       ])
 
-      const tenantsJson = await tenantsRes.json().catch(() => ({}))
-      const jobsJson = await jobsRes.json().catch(() => ({}))
-      const gatewaysJson = await gatewaysRes.json().catch(() => ({}))
-      const schedulerJson = schedulerRes ? await schedulerRes.json().catch(() => ({})) : {}
+      const [tenantsJson, jobsJson, gatewaysJson, schedulerJson] = await Promise.all([
+        tenantsRes.json().catch(() => ({})),
+        jobsRes.json().catch(() => ({})),
+        gatewaysRes.json().catch(() => ({})),
+        schedulerRes ? schedulerRes.json().catch(() => ({})) : Promise.resolve({}),
+      ])
 
       if (!tenantsRes.ok) throw new Error(tenantsJson?.error || 'Failed to load tenants')
       if (!jobsRes.ok) throw new Error(jobsJson?.error || 'Failed to load provision jobs')

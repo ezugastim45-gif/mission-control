@@ -370,7 +370,7 @@ function DunkItButton({ taskId, onDunked }: { taskId: number; onDunked: (id: num
       title={t('dunkIt')}
       style={{
         padding: '2px 8px',
-        fontSize: '11px',
+        fontSize: '12px',
         borderRadius: '4px',
         border: '1px solid',
         cursor: phase === 'idle' ? 'pointer' : 'default',

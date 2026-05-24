@@ -85,7 +85,7 @@ export function TerminalToolbar({
                   className="text-[10px] text-green-400 hover:text-green-300 font-medium"
                   aria-label="Enable interactive mode"
                 >
-                  Yes
+                  Enable
                 </button>
                 <button
                   type="button"
@@ -93,7 +93,7 @@ export function TerminalToolbar({
                   className="text-[10px] text-muted-foreground hover:text-foreground font-medium"
                   aria-label="Cancel enabling interactive mode"
                 >
-                  No
+                  Cancel
                 </button>
               </div>
             ) : (

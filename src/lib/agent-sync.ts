@@ -317,12 +317,13 @@ export async function previewSyncDiff(): Promise<SyncDiff> {
   const newAgents: string[] = []
   const updatedAgents: string[] = []
   const configNames = new Set<string>()
+  const mcAgentsByName = new Map(allMCAgents.map(a => [a.name, a]))
 
   for (const agent of agents) {
     const mapped = mapAgentToMC(agent)
     configNames.add(mapped.name)
 
-    const existing = allMCAgents.find(a => a.name === mapped.name)
+    const existing = mcAgentsByName.get(mapped.name)
     if (!existing) {
       newAgents.push(mapped.name)
     } else {
