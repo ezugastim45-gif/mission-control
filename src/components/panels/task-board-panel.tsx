@@ -473,6 +473,7 @@ export function TaskBoardPanel() {
   const { push: routerPush, replace: routerReplace } = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const { get: getSearchParam } = searchParams
   const [agents, setAgents] = useState<Agent[]>([])
   const [projects, setProjects] = useState<Project[]>([])
   const [projectFilter, setProjectFilter] = useState<string>(
@@ -497,7 +498,7 @@ export function TaskBoardPanel() {
   const [gnapSyncing, setGnapSyncing] = useState(false)
   const isLocal = dashboardMode === 'local'
   const dragCounter = useRef(0)
-  const selectedTaskIdFromUrl = Number.parseInt(searchParams.get('taskId') || '', 10)
+  const selectedTaskIdFromUrl = Number.parseInt(getSearchParam('taskId') || '', 10)
 
   const updateTaskUrl = useCallback((taskId: number | null, mode: 'push' | 'replace' = 'push') => {
     const params = new URLSearchParams(searchParams.toString())

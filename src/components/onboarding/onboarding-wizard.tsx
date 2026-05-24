@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { createPortal } from 'react-dom'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useSyncExternalStore } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Loader } from '@/components/ui/loader'
@@ -83,11 +83,7 @@ export function OnboardingWizard() {
     hasSkills: false,
     dashboardRegistration: null,
   })
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false)
 
   useEffect(() => {
     if (!showOnboarding) return

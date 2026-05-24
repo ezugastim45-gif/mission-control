@@ -2410,7 +2410,7 @@ export function OfficePanel() {
           </div>
         </div>
       )}
-      <style jsx>{`
+      <style>{`
         @keyframes mcSunSweep {
           0% { transform: translateX(-10%) translateY(-2%); opacity: 0.34; }
           50% { transform: translateX(8%) translateY(2%); opacity: 0.56; }

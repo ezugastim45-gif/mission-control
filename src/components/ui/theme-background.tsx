@@ -1,16 +1,12 @@
 'use client'
 
 import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
+import { useEffect, useSyncExternalStore } from 'react'
 import { THEMES, isThemeDark } from '@/lib/themes'
 
 export function ThemeBackground() {
   const { theme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false)
 
   // Sync the "dark" class on <html> so Tailwind dark: variants work.
   // next-themes applies the theme id as a single class; we add/remove

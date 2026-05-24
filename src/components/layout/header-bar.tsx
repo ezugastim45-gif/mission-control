@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations } from 'next-intl'
 import { useMissionControl, type ConnectionStatus } from '@/store'
@@ -61,11 +61,7 @@ export function HeaderBar() {
   const searchInputRef = useRef<HTMLInputElement>(null)
   const resultButtonRefs = useRef<Array<HTMLButtonElement | null>>([])
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
+  const isMounted = useSyncExternalStore(() => () => {}, () => true, () => false)
 
   const getQuickNavResults = useCallback((q: string): SearchResult[] => {
     const normalized = q.trim().toLowerCase()
@@ -405,7 +401,6 @@ export function HeaderBar() {
                   placeholder={th('searchPlaceholder')}
                   aria-label="Command search"
                   className="w-full h-9 px-3 rounded-md bg-secondary border-0 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-                  role="combobox"
                   aria-expanded={searchOpen}
                   aria-controls="mc-command-results"
                   aria-activedescendant={searchResults[selectedIndex] ? `mc-command-result-${selectedIndex}` : undefined}

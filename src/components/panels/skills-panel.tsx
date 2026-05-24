@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState, type JSX } from 'react'
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type JSX } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations } from 'next-intl'
 import { useMissionControl } from '@/store'
@@ -85,7 +85,7 @@ export function SkillsPanel() {
   const [createName, setCreateName] = useState('')
   const [createContent, setCreateContent] = useState('# new-skill\n\nDescribe this skill.\n')
   const [createError, setCreateError] = useState<string | null>(null)
-  const [isMounted, setIsMounted] = useState(false)
+  const isMounted = useSyncExternalStore(() => () => {}, () => true, () => false)
   const [activeTab, setActiveTab] = useState<PanelTab>('installed')
   const [registrySource, setRegistrySource] = useState<'clawhub' | 'skills-sh' | 'awesome-openclaw'>('awesome-openclaw')
   const [registryQuery, setRegistryQuery] = useState('')
@@ -111,9 +111,6 @@ export function SkillsPanel() {
     securityStatus?: string
   } | null>(null)
 
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
 
   const loadSkills = useCallback(async (opts?: { initial?: boolean }) => {
     if (opts?.initial) setLoading(true)

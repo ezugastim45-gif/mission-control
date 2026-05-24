@@ -1,19 +1,15 @@
 'use client'
 
 import { useTheme } from 'next-themes'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useSyncExternalStore } from 'react'
 import { THEMES } from '@/lib/themes'
 import { Button } from '@/components/ui/button'
 
 export function ThemeSelector() {
   const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
+  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false)
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   // Migrate legacy "dark" theme to "void"
   useEffect(() => {
