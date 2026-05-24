@@ -45,7 +45,7 @@ function OpenCodeSetup({ onClose, onComplete }: { onClose: () => void; onComplet
         <p>Restart OpenCode or create a new OpenCode session if you want Mission Control to pick up fresh session activity immediately.</p>
       </div>
       <div className="flex justify-end mt-4">
-        <Button size="sm" onClick={onComplete} aria-label="Finish OpenCode setup">Done</Button>
+        <Button size="sm" onClick={onComplete}>Finish Setup</Button>
       </div>
     </div>
   )
@@ -217,7 +217,7 @@ function OpenClawSetup({ onClose, onComplete }: { onClose: () => void; onComplet
           </div>
 
           <div className="flex justify-end">
-            <Button size="sm" onClick={onComplete} aria-label="Finish OpenClaw setup">Done</Button>
+            <Button size="sm" onClick={onComplete}>Finish Setup</Button>
           </div>
         </div>
       )}
@@ -815,7 +815,7 @@ function HermesSetup({ onClose, onComplete }: { onClose: () => void; onComplete:
           </div>
 
           <div className="flex justify-end">
-            <Button size="sm" onClick={onComplete} aria-label="Finish Hermes setup">Done</Button>
+            <Button size="sm" onClick={onComplete}>Finish Setup</Button>
           </div>
         </div>
       )}
@@ -1061,7 +1061,7 @@ function ClaudeSetup({ onClose, onComplete }: { onClose: () => void; onComplete:
             {version && <p className="text-2xs text-muted-foreground/60">v{version}</p>}
           </div>
           <div className="flex justify-end">
-            <Button size="sm" onClick={onComplete} aria-label="Finish Claude Code setup">Done</Button>
+            <Button size="sm" onClick={onComplete}>Finish Setup</Button>
           </div>
         </div>
       )}
@@ -1180,7 +1180,7 @@ function CodexSetup({ onClose, onComplete }: { onClose: () => void; onComplete: 
             {version && <p className="text-2xs text-muted-foreground/60">v{version}</p>}
           </div>
           <div className="flex justify-end">
-            <Button size="sm" onClick={onComplete} aria-label="Finish Codex CLI setup">Done</Button>
+            <Button size="sm" onClick={onComplete}>Finish Setup</Button>
           </div>
         </div>
       )}
