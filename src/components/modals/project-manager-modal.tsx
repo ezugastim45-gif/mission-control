@@ -210,7 +210,7 @@ export function ProjectManagerModal({
   const dialogRef = useFocusTrap(onClose)
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" role="presentation">
       <button type="button" aria-label="Close project manager" className="absolute inset-0 block w-full border-0 p-0 bg-transparent cursor-default" onClick={onClose} />
       <dialog open ref={dialogRef} aria-modal="true" aria-labelledby="projects-title" className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 space-y-4">

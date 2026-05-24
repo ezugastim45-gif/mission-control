@@ -1435,7 +1435,7 @@ function TaskDetailModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" role="presentation">
       <button type="button" aria-label="Close modal" className="absolute inset-0 block w-full border-0 p-0 bg-transparent cursor-default" onClick={onClose} />
       <dialog open ref={dialogRef} aria-modal="true" aria-labelledby="task-detail-title" className="bg-card border border-border rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/30">
         {/* Header */}
@@ -2171,7 +2171,7 @@ function CreateTaskModal({
   const dialogRef = useFocusTrap(onClose)
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" role="presentation">
       <button type="button" aria-label="Close modal" className="absolute inset-0 block w-full border-0 p-0 bg-transparent cursor-default" onClick={onClose} />
       <dialog open ref={dialogRef} aria-modal="true" aria-labelledby="create-task-title" className="bg-card border border-border rounded-lg max-w-md w-full">
         <form onSubmit={handleSubmit} className="p-6">
@@ -2413,7 +2413,7 @@ function EditTaskModal({
   const dialogRef = useFocusTrap(onClose)
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" role="presentation">
       <button type="button" aria-label="Close modal" className="absolute inset-0 block w-full border-0 p-0 bg-transparent cursor-default" onClick={onClose} />
       <dialog open ref={dialogRef} aria-modal="true" aria-labelledby="edit-task-title" className="bg-card border border-border rounded-lg max-w-md w-full">
         <form onSubmit={handleSubmit} className="p-6">

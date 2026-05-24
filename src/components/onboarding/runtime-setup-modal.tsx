@@ -19,9 +19,14 @@ export function RuntimeSetupModal({ runtime, onClose, onComplete }: RuntimeSetup
   }[runtime]
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" role="presentation">
       <button type="button" aria-label="Close setup modal" className="absolute inset-0 block w-full border-0 p-0 bg-transparent cursor-default" onClick={onClose} />
-      <div className="bg-card border border-border rounded-xl max-w-lg w-full max-h-[80vh] overflow-y-auto shadow-2xl shadow-black/30">
+      <div
+        className="bg-card border border-border rounded-xl max-w-lg w-full max-h-[80vh] overflow-y-auto shadow-2xl shadow-black/30"
+        role="dialog"
+        aria-modal="true"
+        onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}
+      >
         <SetupComponent onClose={onClose} onComplete={onComplete} />
       </div>
     </div>
