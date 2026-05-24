@@ -898,7 +898,7 @@ export function CronManagementPanel() {
                       className={`rounded-lg border p-2 min-h-36 cursor-pointer flex flex-col w-full text-left bg-transparent ${isSameDay(date, selectedCalendarDate) ? 'bg-primary/10 border-primary/40' : 'border-border hover:bg-secondary/50'}`}
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className={`text-xs font-medium ${isSameDay(date, new Date()) ? 'text-primary' : 'text-muted-foreground'}`}>
+                        <span suppressHydrationWarning className={`text-xs font-medium ${isSameDay(date, new Date()) ? 'text-primary' : 'text-muted-foreground'}`}>
                           {date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' })}
                         </span>
                         {jobs.length > 0 && (
@@ -943,7 +943,7 @@ export function CronManagementPanel() {
                       className={`border border-border rounded-lg p-2 min-h-24 cursor-pointer w-full text-left bg-transparent ${inCurrentMonth ? '' : 'bg-secondary/30'} ${isSameDay(date, selectedCalendarDate) ? 'border-primary/40 bg-primary/10' : 'hover:bg-secondary/50'}`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className={`text-xs ${isSameDay(date, new Date()) ? 'text-primary font-semibold' : inCurrentMonth ? 'text-foreground' : 'text-muted-foreground'}`}>
+                        <span suppressHydrationWarning className={`text-xs ${isSameDay(date, new Date()) ? 'text-primary font-semibold' : inCurrentMonth ? 'text-foreground' : 'text-muted-foreground'}`}>
                           {date.getDate()}
                         </span>
                         {jobs.length > 0 && (

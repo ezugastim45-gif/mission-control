@@ -280,7 +280,7 @@ export function ProjectManagerModal({
                             </span>
                           )}
                           {project.deadline && project.deadline < Math.floor(Date.now() / 1000) && (
-                            <span className="size-2 rounded-full bg-red-500 shrink-0" title="Overdue" />
+                            <span suppressHydrationWarning className="size-2 rounded-full bg-red-500 shrink-0" title="Overdue" />
                           )}
                         </div>
                         <div className="text-xs text-muted-foreground">
