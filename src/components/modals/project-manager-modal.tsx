@@ -395,7 +395,7 @@ export function ProjectManagerModal({
                         </div>
                         <div>
                           <p className="block text-xs text-muted-foreground mb-1">Color</p>
-                          <div className="flex gap-1.5 items-center flex-wrap" role="group" aria-label="Select project color">
+                          <fieldset className="flex gap-1.5 items-center flex-wrap border-0 m-0 p-0" aria-label="Select project color">
                             {COLOR_PALETTE.map(c => (
                               <button
                                 key={c}
@@ -406,14 +406,14 @@ export function ProjectManagerModal({
                                 aria-label={`Select color ${c}`}
                               />
                             ))}
-                          </div>
+                          </fieldset>
                         </div>
                       </div>
 
                       {agents.length > 0 && (
                         <div>
                           <p className="block text-xs text-muted-foreground mb-1">Assigned Agents</p>
-                          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Assign agents to project">
+                          <fieldset className="flex flex-wrap gap-1.5 border-0 m-0 p-0" aria-label="Assign agents to project">
                             {agents.map(agent => (
                               <button
                                 key={agent.name}
@@ -428,7 +428,7 @@ export function ProjectManagerModal({
                                 {agent.name}
                               </button>
                             ))}
-                          </div>
+                          </fieldset>
                         </div>
                       )}
 

@@ -817,7 +817,7 @@ export function TaskBoardPanel() {
 
   if (loading) {
     return (
-      <div className="h-full flex flex-col" role="status" aria-live="polite">
+      <output className="h-full flex flex-col" aria-live="polite">
         <div className="flex justify-between items-center p-4 border-b border-border flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="h-7 w-28 bg-surface-1 rounded-md animate-pulse" />
@@ -851,7 +851,7 @@ export function TaskBoardPanel() {
           ))}
         </div>
         <span className="sr-only">{t('loadingTasks')}</span>
-      </div>
+      </output>
     )
   }
 

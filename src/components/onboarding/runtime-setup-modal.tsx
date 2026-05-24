@@ -21,14 +21,14 @@ export function RuntimeSetupModal({ runtime, onClose, onComplete }: RuntimeSetup
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" role="presentation">
       <button type="button" aria-label="Close setup modal" className="absolute inset-0 block w-full border-0 p-0 bg-transparent cursor-default" onClick={onClose} />
-      <div
-        className="bg-card border border-border rounded-xl max-w-lg w-full max-h-[80vh] overflow-y-auto shadow-2xl shadow-black/30"
-        role="dialog"
+      <dialog
+        open
+        className="bg-card border border-border rounded-xl max-w-lg w-full max-h-[80vh] overflow-y-auto shadow-2xl shadow-black/30 m-0"
         aria-modal="true"
         onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}
       >
         <SetupComponent onClose={onClose} onComplete={onComplete} />
-      </div>
+      </dialog>
     </div>
   )
 }
@@ -473,7 +473,7 @@ function HermesSetup({ onClose, onComplete }: { onClose: () => void; onComplete:
           {/* Model grid */}
           <div>
             <label htmlFor="hermes-custom-model" className="text-[10px] text-muted-foreground/50 uppercase tracking-wider block mb-1.5">Model</label>
-            <div className="flex flex-wrap gap-1 mb-1.5" role="group" aria-label="Select model">
+            <fieldset className="flex flex-wrap gap-1 mb-1.5 border-0 m-0 p-0" aria-label="Select model">
               {providerModels.map((m) => (
                 <button
                   key={m}
@@ -488,7 +488,7 @@ function HermesSetup({ onClose, onComplete }: { onClose: () => void; onComplete:
                   {m}
                 </button>
               ))}
-            </div>
+            </fieldset>
             <input
               id="hermes-custom-model"
               type="text"
