@@ -690,7 +690,7 @@ export function GitHubSyncPanel() {
                           {task.metadata.github_repo}#{task.metadata.github_issue_number}
                         </a>
                       ) : (
-                        <span className="text-muted-foreground">—</span>
+                        <span className="text-muted-foreground">-</span>
                       )}
                     </td>
                     <td className="px-4 py-2 text-muted-foreground">

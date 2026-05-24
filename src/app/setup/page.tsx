@@ -266,7 +266,6 @@ export default function SetupPage() {
                   className="w-full h-10 px-3 rounded-lg bg-secondary border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-smooth"
                   placeholder="admin"
                   autoComplete="username"
-                  autoFocus
                   required
                   minLength={2}
                   maxLength={64}

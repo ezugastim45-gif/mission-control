@@ -1488,7 +1488,7 @@ export function CronManagementPanel() {
                 />
                 <datalist id="cron-model-suggestions">
                   {availableModels.map((modelName) => (
-                    <option key={modelName} value={modelName} />
+                    <option key={modelName} value={modelName}>{modelName}</option>
                   ))}
                 </datalist>
                 {formErrors.model ? (

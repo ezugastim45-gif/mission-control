@@ -63,7 +63,7 @@ function renderPluginPanel(panelId: string) {
 }
 
 export default function Home() {
-  const router = useRouter()
+  const { replace } = useRouter()
   const tp = useTranslations('page')
   const tc = useTranslations('common')
   const { activeTab, setActiveTab, showOnboarding, liveFeedOpen, toggleLiveFeed, showProjectManagerModal, setShowProjectManagerModal, fetchProjects, setChatPanelOpen, bootComplete } = useMissionControl()
@@ -87,9 +87,9 @@ export default function Home() {
       setChatPanelOpen(false)
     }
     if (panelFromUrl === 'sessions') {
-      router.replace('/chat')
+      replace('/chat')
     }
-  }, [panelFromUrl, normalizedPanel, router, setActiveTab, setChatPanelOpen])
+  }, [panelFromUrl, normalizedPanel, replace, setActiveTab, setChatPanelOpen])
 
   // Connect to SSE for real-time local DB events (tasks, agents, chat, etc.)
   useServerEvents()
@@ -145,6 +145,7 @@ export default function Home() {
       {/* Floating button to reopen LiveFeed when closed */}
       {!showOnboarding && !liveFeedOpen && (
         <button
+          type="button"
           onClick={toggleLiveFeed}
           className="hidden lg:flex fixed right-0 top-1/2 -translate-y-1/2 z-30 w-6 h-12 items-center justify-center bg-card border border-r-0 border-border rounded-l-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200"
           title={tp('showLiveFeed')}

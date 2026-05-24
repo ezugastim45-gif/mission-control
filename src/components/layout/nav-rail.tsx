@@ -362,7 +362,7 @@ export function NavRail() {
                             <button
                               type="button"
                               onClick={(e) => { e.stopPropagation(); toggleParent(item.id) }}
-                              className="px-1.5 py-1.5 rounded-r-lg hover:bg-secondary/50 transition-colors"
+                              className="p-1.5 rounded-r-lg hover:bg-secondary/50 transition-colors"
                               aria-label={isParentExpanded ? 'Collapse section' : 'Expand section'}
                             >
                               <svg
@@ -836,7 +836,7 @@ function ContextSwitcher({ currentUser, isAdmin, isLocal, isConnected, tenants, 
   const tcs = useTranslations('contextSwitcher')
   const tn = useTranslations('nav')
   const tc = useTranslations('common')
-  const router = useRouter()
+  const { push } = useRouter()
   // Build unified org list: DB tenants + unlinked OS users
   const linkedUsernames = new Set(tenants.map(t => t.linux_user))
   const unlinkedOsUsers = osUsers.filter(u => !linkedUsernames.has(u.username) && !u.is_process_owner)
@@ -1021,7 +1021,7 @@ function ContextSwitcher({ currentUser, isAdmin, isLocal, isConnected, tenants, 
                 variant="ghost"
                 onClick={async () => {
                   await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
-                  router.push('/login')
+                  push('/login')
                 }}
                 className="w-full flex items-center gap-2 px-2 py-1.5 h-auto rounded-md text-xs justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10"
               >
@@ -1129,7 +1129,6 @@ function ContextSwitcher({ currentUser, isAdmin, isLocal, isConnected, tenants, 
                         value={createForm.username}
                         onChange={(e) => setCreateForm(f => ({ ...f, username: e.target.value }))}
                         placeholder={tcs('usernamePlaceholder')}
-                        autoFocus
                         className="w-full h-7 px-2 rounded bg-secondary border border-border text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
                         aria-label={tcs('usernamePlaceholder')}
                       />

@@ -252,8 +252,9 @@ function readClaudeTranscript(sessionId: string, limit: number): TranscriptMessa
         }
       } else if (parsed?.type === 'assistant') {
         const parts: MessageContentPart[] = []
-        if (Array.isArray(parsed?.message?.content)) {
-          for (const block of parsed.message.content) {
+        const assistantContent = parsed?.message?.content
+        if (Array.isArray(assistantContent)) {
+          for (const block of assistantContent) {
             if (block?.type === 'thinking' && typeof block?.thinking === 'string') {
               const thinking = block.thinking.trim()
               if (thinking) {

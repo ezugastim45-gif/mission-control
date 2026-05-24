@@ -230,8 +230,10 @@ async function createNewIdentity(): Promise<DeviceIdentity> {
   // v1 fallback — extractable key in plaintext localStorage. Keeps the
   // gateway handshake working when IndexedDB isn't available.
   const keyPair = await crypto.subtle.generateKey('Ed25519', true, ['sign', 'verify'])
-  const pubRaw = await crypto.subtle.exportKey('raw', keyPair.publicKey)
-  const privPkcs8 = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey)
+  const [pubRaw, privPkcs8] = await Promise.all([
+    crypto.subtle.exportKey('raw', keyPair.publicKey),
+    crypto.subtle.exportKey('pkcs8', keyPair.privateKey),
+  ])
   const deviceId = await sha256Hex(pubRaw)
   const publicKeyBase64 = toBase64Url(pubRaw)
   const privateKeyBase64 = toBase64Url(privPkcs8)

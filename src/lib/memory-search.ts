@@ -61,13 +61,14 @@ export async function rebuildIndex(baseDir: string, allowedPrefixes: string[]): 
   let files: MemoryFileInfo[] = []
   if (allowedPrefixes.length) {
     const perPrefix = await Promise.all(
-      allowedPrefixes
-        .map(prefix => prefix.replace(/\/$/, ''))
-        .filter(folder => existsSync(join(baseDir, folder)))
-        .map(async (folder) => {
-          const prefixFiles = await scanMemoryFiles(join(baseDir, folder), { extensions: ['.md', '.txt'] })
-          return prefixFiles.map(f => ({ ...f, path: join(folder, f.path) }))
-        })
+      allowedPrefixes.flatMap((prefix) => {
+        const folder = prefix.replace(/\/$/, '')
+        if (!existsSync(join(baseDir, folder))) return []
+        return [
+          scanMemoryFiles(join(baseDir, folder), { extensions: ['.md', '.txt'] })
+            .then(prefixFiles => prefixFiles.map(f => ({ ...f, path: join(folder, f.path) }))),
+        ]
+      })
     )
     files = perPrefix.flat()
   } else {

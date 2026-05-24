@@ -1197,7 +1197,8 @@ export function OfficePanel() {
         const waypoint = LOUNGE_WAYPOINTS[(hashNumber(worker.agent.name) + cycle) % LOUNGE_WAYPOINTS.length]
         enqueueMovement(worker.agent, worker.x, worker.y, waypoint.x, waypoint.y, 2200)
 
-        const existingReturnTimer = roamReturnTimersRef.current.get(worker.agent.id)
+        const roamTimers = roamReturnTimersRef.current
+        const existingReturnTimer = roamTimers.get(worker.agent.id)
         if (existingReturnTimer) clearTimeout(existingReturnTimer)
         const returnTimer = setTimeout(() => {
           const seat = currentSeatMap.get(worker.agent.id)
@@ -1206,7 +1207,7 @@ export function OfficePanel() {
           }
           roamReturnTimersRef.current.delete(worker.agent.id)
         }, 2700)
-        roamReturnTimersRef.current.set(worker.agent.id, returnTimer)
+        roamTimers.set(worker.agent.id, returnTimer)
       }
     }, 14_000)
     return () => clearInterval(interval)

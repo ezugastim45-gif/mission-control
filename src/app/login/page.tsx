@@ -473,7 +473,7 @@ export default function LoginPage() {
                 </>
               ) : (
                 <>
-                  <GoogleIcon className="w-[18px] h-[18px]" />
+                  <GoogleIcon className="size-[18px]" />
                   {t('signInWithGoogle')}
                 </>
               )}
@@ -502,7 +502,6 @@ export default function LoginPage() {
               className="w-full h-10 px-3 rounded-lg bg-secondary border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-smooth"
               placeholder={t('enterUsername')}
               autoComplete="username"
-              autoFocus
               required
               aria-required="true"
               aria-label={t('username')}

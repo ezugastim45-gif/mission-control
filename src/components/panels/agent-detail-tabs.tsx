@@ -1103,7 +1103,6 @@ export function CreateAgentModal({
                     onChange={(e) => updateName(e.target.value)}
                     className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/50"
                     placeholder={t('displayNamePlaceholder')}
-                    autoFocus
                     aria-label={t('displayName')}
                   />
                 </div>
@@ -1836,7 +1835,7 @@ export function ConfigTab({
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs text-muted-foreground font-medium">identity.md</label>
+                <label htmlFor="workspace-identity-md" className="text-xs text-muted-foreground font-medium">identity.md</label>
                 {editing && onSaveWorkspaceFile && (
                   <Button
                     onClick={() => saveWorkspaceFile('identity.md')}
@@ -1849,12 +1848,12 @@ export function ConfigTab({
               </div>
               {editing ? (
                 <textarea
+                  id="workspace-identity-md"
                   rows={6}
                   value={identityMdInput}
                   onChange={(e) => setIdentityMdInput(e.target.value)}
                   className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
                   placeholder="identity.md content..."
-                  aria-label="identity.md"
                 />
               ) : (
                 <pre className="bg-surface-1 rounded p-3 text-xs text-muted-foreground overflow-auto whitespace-pre-wrap min-h-[96px]">
@@ -1865,7 +1864,7 @@ export function ConfigTab({
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs text-muted-foreground font-medium">agent.md</label>
+                <label htmlFor="workspace-agent-md" className="text-xs text-muted-foreground font-medium">agent.md</label>
                 {editing && onSaveWorkspaceFile && (
                   <Button onClick={() => saveWorkspaceFile('agent.md')} disabled={savingAgentMd} size="xs">
                     {savingAgentMd ? t('saving') : t('saveAgentMd')}
@@ -1874,12 +1873,12 @@ export function ConfigTab({
               </div>
               {editing ? (
                 <textarea
+                  id="workspace-agent-md"
                   rows={8}
                   value={agentMdInput}
                   onChange={(e) => setAgentMdInput(e.target.value)}
                   className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
                   placeholder="agent.md content..."
-                  aria-label="agent.md"
                 />
               ) : (
                 <pre className="bg-surface-1 rounded p-3 text-xs text-muted-foreground overflow-auto whitespace-pre-wrap min-h-[120px]">
@@ -1895,8 +1894,7 @@ export function ConfigTab({
               ) : (
                 <div className="space-y-2">
                   {workspaceDocs
-                    .filter((doc) => !['identity.md', 'agent.md'].includes(doc.name))
-                    .map((doc) => (
+                    .flatMap((doc) => !['identity.md', 'agent.md'].includes(doc.name) ? [(
                       <div key={doc.name} className="bg-surface-1 rounded p-3">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-xs font-mono text-foreground">{doc.name}</span>
@@ -1908,7 +1906,7 @@ export function ConfigTab({
                           {doc.exists ? doc.content : t('fileNotFound', { name: doc.name })}
                         </pre>
                       </div>
-                    ))}
+                    )] : [])}
                 </div>
               )}
             </div>

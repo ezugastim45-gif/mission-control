@@ -45,7 +45,7 @@ function OpenCodeSetup({ onClose, onComplete }: { onClose: () => void; onComplet
         <p>Restart OpenCode or create a new OpenCode session if you want Mission Control to pick up fresh session activity immediately.</p>
       </div>
       <div className="flex justify-end mt-4">
-        <Button size="sm" onClick={onComplete}>Done</Button>
+        <Button size="sm" onClick={onComplete} aria-label="Finish OpenCode setup">Done</Button>
       </div>
     </div>
   )
@@ -217,7 +217,7 @@ function OpenClawSetup({ onClose, onComplete }: { onClose: () => void; onComplet
           </div>
 
           <div className="flex justify-end">
-            <Button size="sm" onClick={onComplete}>Done</Button>
+            <Button size="sm" onClick={onComplete} aria-label="Finish OpenClaw setup">Done</Button>
           </div>
         </div>
       )}
@@ -467,8 +467,8 @@ function HermesSetup({ onClose, onComplete }: { onClose: () => void; onComplete:
 
           {/* Model grid */}
           <div>
-            <label className="text-[10px] text-muted-foreground/50 uppercase tracking-wider block mb-1.5">Model</label>
-            <div className="flex flex-wrap gap-1 mb-1.5">
+            <label htmlFor="hermes-custom-model" className="text-[10px] text-muted-foreground/50 uppercase tracking-wider block mb-1.5">Model</label>
+            <div className="flex flex-wrap gap-1 mb-1.5" role="group" aria-label="Select model">
               {providerModels.map((m) => (
                 <button
                   key={m}
@@ -485,6 +485,7 @@ function HermesSetup({ onClose, onComplete }: { onClose: () => void; onComplete:
               ))}
             </div>
             <input
+              id="hermes-custom-model"
               type="text"
               value={customModel}
               onChange={(e) => { setCustomModel(e.target.value); if (e.target.value) setSelectedModel(e.target.value) }}
@@ -781,7 +782,7 @@ function HermesSetup({ onClose, onComplete }: { onClose: () => void; onComplete:
             <div className="mt-2 pt-2 border-t border-border/10">
               <p className="text-muted-foreground/50 text-[10px]">
                 Supported: Telegram, Discord, Slack, WhatsApp, Signal, Email.
-                Each platform needs a bot token — run gateway setup for guided configuration.
+                Each platform needs a bot token; run gateway setup for guided configuration.
               </p>
             </div>
           </div>
@@ -814,7 +815,7 @@ function HermesSetup({ onClose, onComplete }: { onClose: () => void; onComplete:
           </div>
 
           <div className="flex justify-end">
-            <Button size="sm" onClick={onComplete}>Done</Button>
+            <Button size="sm" onClick={onComplete} aria-label="Finish Hermes setup">Done</Button>
           </div>
         </div>
       )}
@@ -1060,7 +1061,7 @@ function ClaudeSetup({ onClose, onComplete }: { onClose: () => void; onComplete:
             {version && <p className="text-2xs text-muted-foreground/60">v{version}</p>}
           </div>
           <div className="flex justify-end">
-            <Button size="sm" onClick={onComplete}>Done</Button>
+            <Button size="sm" onClick={onComplete} aria-label="Finish Claude Code setup">Done</Button>
           </div>
         </div>
       )}
@@ -1179,7 +1180,7 @@ function CodexSetup({ onClose, onComplete }: { onClose: () => void; onComplete: 
             {version && <p className="text-2xs text-muted-foreground/60">v{version}</p>}
           </div>
           <div className="flex justify-end">
-            <Button size="sm" onClick={onComplete}>Done</Button>
+            <Button size="sm" onClick={onComplete} aria-label="Finish Codex CLI setup">Done</Button>
           </div>
         </div>
       )}

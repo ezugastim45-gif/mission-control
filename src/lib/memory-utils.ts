@@ -679,8 +679,10 @@ export async function reflectPass(baseDir: string): Promise<ProcessingResult> {
  * with context from newer files.
  */
 export async function reweavePass(baseDir: string): Promise<ProcessingResult> {
-  const files = await scanMemoryFiles(baseDir, { extensions: ['.md'] })
-  const graph = await buildLinkGraph(baseDir)
+  const [files, graph] = await Promise.all([
+    scanMemoryFiles(baseDir, { extensions: ['.md'] }),
+    buildLinkGraph(baseDir),
+  ])
   const now = Date.now()
   const staleThreshold = 14 * 24 * 60 * 60 * 1000 // 14 days
   const suggestions: string[] = []

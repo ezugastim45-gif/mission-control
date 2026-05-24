@@ -451,8 +451,10 @@ async function tick() {
             return { ok: true, message: `Gateway sync: ${r.created} created, ${r.updated} updated, ${r.synced} total | Live status: ${refreshed} refreshed` }
           })
         : id === 'task_dispatch' ? await autoRouteInboxTasks().then(async (routeResult) => {
-            const reconcileResult = await reconcileDeferredTaskCompletions()
-            const dispatchResult = await dispatchAssignedTasks()
+            const [reconcileResult, dispatchResult] = await Promise.all([
+              reconcileDeferredTaskCompletions(),
+              dispatchAssignedTasks(),
+            ])
             const parts = [reconcileResult.message, routeResult.message, dispatchResult.message].filter(m => m && !m.includes('No ') && !m.includes('none completed'))
             return { ok: routeResult.ok && reconcileResult.ok && dispatchResult.ok, message: parts.join(' | ') || 'No tasks to reconcile, route, or dispatch' }
           })
@@ -521,7 +523,7 @@ export async function triggerTask(taskId: string): Promise<{ ok: boolean; messag
   if (taskId === 'skill_sync') return syncSkillsFromDisk()
   if (taskId === 'local_agent_sync') return syncLocalAgents()
   if (taskId === 'gateway_agent_sync') return syncAgentsFromConfig('manual').then(r => ({ ok: true, message: `Gateway sync: ${r.created} created, ${r.updated} updated, ${r.synced} total` }))
-  if (taskId === 'task_dispatch') return autoRouteInboxTasks().then(async (r) => { const c = await reconcileDeferredTaskCompletions(); const d = await dispatchAssignedTasks(); return { ok: r.ok && c.ok && d.ok, message: [c.message, r.message, d.message].filter(m => m && !m.includes('No ') && !m.includes('none completed')).join(' | ') || 'No tasks' } })
+  if (taskId === 'task_dispatch') return autoRouteInboxTasks().then(async (r) => { const [c, d] = await Promise.all([reconcileDeferredTaskCompletions(), dispatchAssignedTasks()]); return { ok: r.ok && c.ok && d.ok, message: [c.message, r.message, d.message].filter(m => m && !m.includes('No ') && !m.includes('none completed')).join(' | ') || 'No tasks' } })
   if (taskId === 'aegis_review') return runAegisReviews()
   if (taskId === 'recurring_task_spawn') return spawnRecurringTasks()
   if (taskId === 'stale_task_requeue') return requeueStaleTasks()

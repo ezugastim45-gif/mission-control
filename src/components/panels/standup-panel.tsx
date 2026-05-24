@@ -397,7 +397,7 @@ export function StandupPanel() {
                   <h4 className="text-lg font-semibold text-foreground mb-3">🎉 {t('teamAccomplishments')}</h4>
                   <div className="space-y-2">
                     {standupReport.teamAccomplishments.map(task => (
-                      <div key={task.id} className="flex justify-between items-center p-2 bg-green-900/20 rounded border-l-4 border-green-500">
+                      <div key={task.id} className="flex justify-between items-center p-2 bg-green-900/20 rounded border-l border-green-500">
                         <span className="text-foreground">{task.title}</span>
                         <span className="text-green-400 text-sm">{task.agent}</span>
                       </div>
@@ -412,7 +412,7 @@ export function StandupPanel() {
                   <h4 className="text-lg font-semibold text-foreground mb-3">🚫 {t('teamBlockers')}</h4>
                   <div className="space-y-2">
                     {standupReport.teamBlockers.map(task => (
-                      <div key={task.id} className="flex justify-between items-center p-2 bg-red-900/20 rounded border-l-4 border-red-500">
+                      <div key={task.id} className="flex justify-between items-center p-2 bg-red-900/20 rounded border-l border-red-500">
                         <div>
                           <span className="text-foreground">{task.title}</span>
                           <span className={`ml-2 text-sm ${getPriorityColor(task.priority)}`}>
@@ -432,7 +432,7 @@ export function StandupPanel() {
                   <h4 className="text-lg font-semibold text-foreground mb-3">⏰ {t('overdueTasks')}</h4>
                   <div className="space-y-2">
                     {standupReport.overdueTasks.map(task => (
-                      <div key={task.id} className="flex justify-between items-center p-2 bg-orange-900/20 rounded border-l-4 border-orange-500">
+                      <div key={task.id} className="flex justify-between items-center p-2 bg-orange-900/20 rounded border-l border-orange-500">
                         <div>
                           <span className="text-foreground">{task.title}</span>
                           <span className="text-orange-400 text-sm ml-2">

@@ -93,7 +93,7 @@ function groupByDay(activities: Activity[]): Record<string, Activity[]> {
 function ActivityRow({ activity }: { activity: Activity }) {
   const t = useTranslations('activityFeed')
   return (
-    <div className="bg-card rounded-lg p-3 border-l-2 border-border hover:bg-surface-1 transition-smooth">
+    <div className="bg-card rounded-lg p-3 border-l border-border hover:bg-surface-1 transition-smooth">
       <div className="flex items-start gap-3">
         <div
           className={`flex-shrink-0 size-7 rounded-full flex items-center justify-center text-xs font-bold ${

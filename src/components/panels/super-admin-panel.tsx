@@ -671,8 +671,9 @@ export function SuperAdminPanel() {
                 aria-label="Dashboard port"
                 className="h-9 px-3 rounded-md bg-secondary border border-border text-sm text-foreground"
               />
-              <label className="h-9 px-3 rounded-md bg-secondary border border-border text-sm text-foreground flex items-center gap-2">
+              <label htmlFor="tenant-dry-run" className="h-9 px-3 rounded-md bg-secondary border border-border text-sm text-foreground flex items-center gap-2">
                 <input
+                  id="tenant-dry-run"
                   type="checkbox"
                   checked={form.dry_run}
                   onChange={(e) => setForm((f) => ({ ...f, dry_run: e.target.checked }))}

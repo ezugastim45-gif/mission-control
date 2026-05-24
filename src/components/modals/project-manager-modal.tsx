@@ -327,19 +327,20 @@ export function ProjectManagerModal({
                     <div role="presentation" className="border-t border-border p-3 bg-surface-1/50 space-y-3" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs text-muted-foreground mb-1">Description</label>
+                          <label htmlFor="edit-description" className="block text-xs text-muted-foreground mb-1">Description</label>
                           <textarea
+                            id="edit-description"
                             value={editForm.description}
                             onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
                             rows={2}
-                            aria-label="Description"
                             className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 text-sm resize-none"
                             placeholder="Project description"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-muted-foreground mb-1">GitHub Repo</label>
+                          <label htmlFor="edit-github-repo" className="block text-xs text-muted-foreground mb-1">GitHub Repo</label>
                           <input
+                            id="edit-github-repo"
                             type="text"
                             value={editForm.github_repo}
                             onChange={(e) => setEditForm(prev => ({ ...prev, github_repo: e.target.value }))}
@@ -353,8 +354,9 @@ export function ProjectManagerModal({
                       {editForm.github_repo && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs text-muted-foreground mb-1">Default Branch</label>
+                            <label htmlFor="edit-default-branch" className="block text-xs text-muted-foreground mb-1">Default Branch</label>
                             <input
+                              id="edit-default-branch"
                               type="text"
                               value={editForm.github_default_branch}
                               onChange={(e) => setEditForm(prev => ({ ...prev, github_default_branch: e.target.value }))}
@@ -365,6 +367,7 @@ export function ProjectManagerModal({
                           </div>
                           <div className="flex items-center gap-2 mt-5">
                             <button
+                              id="edit-github-sync"
                               type="button"
                               aria-label="Enable two-way sync"
                               onClick={() => setEditForm(prev => ({ ...prev, github_sync_enabled: !prev.github_sync_enabled }))}
@@ -376,15 +379,16 @@ export function ProjectManagerModal({
                                 editForm.github_sync_enabled ? 'translate-x-4' : 'translate-x-0.5'
                               }`} />
                             </button>
-                            <label className="text-xs text-muted-foreground">Enable Two-Way Sync</label>
+                            <label htmlFor="edit-github-sync" className="text-xs text-muted-foreground">Enable Two-Way Sync</label>
                           </div>
                         </div>
                       )}
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs text-muted-foreground mb-1">Deadline</label>
+                          <label htmlFor="edit-deadline" className="block text-xs text-muted-foreground mb-1">Deadline</label>
                           <input
+                            id="edit-deadline"
                             type="date"
                             value={editForm.deadline}
                             onChange={(e) => setEditForm(prev => ({ ...prev, deadline: e.target.value }))}
@@ -393,8 +397,8 @@ export function ProjectManagerModal({
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-muted-foreground mb-1">Color</label>
-                          <div className="flex gap-1.5 items-center flex-wrap">
+                          <p className="block text-xs text-muted-foreground mb-1">Color</p>
+                          <div className="flex gap-1.5 items-center flex-wrap" role="group" aria-label="Select project color">
                             {COLOR_PALETTE.map(c => (
                               <button
                                 key={c}
@@ -411,8 +415,8 @@ export function ProjectManagerModal({
 
                       {agents.length > 0 && (
                         <div>
-                          <label className="block text-xs text-muted-foreground mb-1">Assigned Agents</label>
-                          <div className="flex flex-wrap gap-1.5">
+                          <p className="block text-xs text-muted-foreground mb-1">Assigned Agents</p>
+                          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Assign agents to project">
                             {agents.map(agent => (
                               <button
                                 key={agent.name}

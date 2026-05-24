@@ -521,7 +521,6 @@ function GatewayCard({ gateway, health, historyEntries = [], isProbing, isCurren
                 placeholder="Paste gateway token..."
                 aria-label="Gateway token"
                 className="flex-1 px-2 py-1 text-xs bg-secondary border border-border rounded font-mono"
-                autoFocus
                 onKeyDown={e => {
                   if (e.key === 'Enter' && tokenInput.trim()) {
                     onUpdateToken(tokenInput.trim())

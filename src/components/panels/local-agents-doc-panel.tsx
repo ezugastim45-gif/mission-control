@@ -102,15 +102,15 @@ export function LocalAgentsDocPanel() {
       </div>
 
       {loading ? (
-        <div className="px-4 py-4 text-xs text-muted-foreground">{t('loading')}</div>
+        <div className="p-4 text-xs text-muted-foreground">{t('loading')}</div>
       ) : error ? (
-        <div className="px-4 py-4 text-xs text-destructive">{error}</div>
+        <div className="p-4 text-xs text-destructive">{error}</div>
       ) : data?.found && data.content ? (
-        <pre className="px-4 py-4 text-2xs md:text-xs leading-5 text-muted-foreground overflow-x-auto whitespace-pre-wrap">
+        <pre className="p-4 text-2xs md:text-xs leading-5 text-muted-foreground overflow-x-auto whitespace-pre-wrap">
           {preview}
         </pre>
       ) : (
-        <div className="px-4 py-4 text-xs text-muted-foreground space-y-1">
+        <div className="p-4 text-xs text-muted-foreground space-y-1">
           <p>{t('notDetected')}</p>
           {data?.candidates && data.candidates.length > 0 && (
             <p className="text-2xs">

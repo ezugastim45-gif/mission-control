@@ -68,13 +68,14 @@ export function AgentRuntimesSection({ showFeedback }: Props) {
           })
           if (!res.ok) continue
           const data = await res.json()
-          if (data.job) {
-            setActiveJobs(prev => ({ ...prev, [data.job.runtime]: data.job }))
-            if (data.job.status === 'success') {
-              showFeedback(true, `${data.job.runtime} installed successfully`)
+          const updatedJob = data.job
+          if (updatedJob) {
+            setActiveJobs(prev => ({ ...prev, [updatedJob.runtime]: updatedJob }))
+            if (updatedJob.status === 'success') {
+              showFeedback(true, `${updatedJob.runtime} installed successfully`)
               fetchRuntimes()
-            } else if (data.job.status === 'failed') {
-              showFeedback(false, `${data.job.runtime} install failed`)
+            } else if (updatedJob.status === 'failed') {
+              showFeedback(false, `${updatedJob.runtime} install failed`)
               fetchRuntimes()
             }
           }
@@ -156,7 +157,7 @@ export function AgentRuntimesSection({ showFeedback }: Props) {
 
       {isDocker && (
         <div className="mb-3 p-2 rounded border border-void-cyan/20 bg-void-cyan/5 text-xs text-muted-foreground">
-          Running in Docker — install directly or use sidecar services for production.
+          Running in Docker: install directly or use sidecar services for production.
         </div>
       )}
 

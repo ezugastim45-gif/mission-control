@@ -1647,15 +1647,16 @@ export async function autoRouteInboxTasks(): Promise<{ ok: boolean; message: str
         return c < 3
       })
       if (!alt) continue // all agents at capacity
+      const altAgent = alt.agent
       db.prepare('UPDATE tasks SET status = ?, assigned_to = ?, updated_at = ? WHERE id = ?')
-        .run('assigned', alt.agent.name, now, task.id)
+        .run('assigned', altAgent.name, now, task.id)
 
       db_helpers.logActivity('task_auto_routed', 'task', task.id, 'scheduler',
-        `Auto-assigned "${task.title}" to ${alt.agent.name} (${alt.agent.role}, score: ${alt.score})`,
-        { agent: alt.agent.name, role: alt.agent.role, score: alt.score },
+        `Auto-assigned "${task.title}" to ${altAgent.name} (${altAgent.role}, score: ${alt.score})`,
+        { agent: altAgent.name, role: altAgent.role, score: alt.score },
         task.workspace_id)
 
-      eventBus.broadcast('task.status_changed', { id: task.id, status: 'assigned', previous_status: 'inbox', assigned_to: alt.agent.name })
+      eventBus.broadcast('task.status_changed', { id: task.id, status: 'assigned', previous_status: 'inbox', assigned_to: altAgent.name })
       syncAndEscalateIfFailed(task as any, 'assigned')
       routed++
       continue

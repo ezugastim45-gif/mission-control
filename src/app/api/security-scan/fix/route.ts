@@ -55,8 +55,7 @@ function getRequestHostCandidates(request: NextRequest): string[] {
 
 function getFailingChecks() {
   return Object.values(runSecurityScan().categories)
-    .flatMap((category) => category.checks)
-    .filter((check) => check.status !== 'pass')
+    .flatMap((category) => category.checks.filter((check) => check.status !== 'pass'))
 }
 
 export async function POST(request: NextRequest) {

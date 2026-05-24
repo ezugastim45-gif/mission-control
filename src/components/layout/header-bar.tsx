@@ -405,7 +405,6 @@ export function HeaderBar() {
                   placeholder={th('searchPlaceholder')}
                   aria-label="Command search"
                   className="w-full h-9 px-3 rounded-md bg-secondary border-0 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-                  autoFocus
                   role="combobox"
                   aria-expanded={searchOpen}
                   aria-controls="mc-command-results"

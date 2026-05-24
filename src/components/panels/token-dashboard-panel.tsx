@@ -673,6 +673,7 @@ export function TokenDashboardPanel() {
             {(['cost', 'tokens', 'requests', 'recent'] as const).map(s => (
               <button
                 key={s}
+                type="button"
                 onClick={() => setSessionSort(s)}
                 className={`px-2 py-1 text-xs rounded ${sessionSort === s ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
               >

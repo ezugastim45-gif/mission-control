@@ -87,9 +87,12 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const nonce = (await headers()).get('x-nonce') || undefined
-  const locale = await getLocale()
-  const messages = await getMessages()
+  const [nonceHeader, locale, messages] = await Promise.all([
+    headers(),
+    getLocale(),
+    getMessages(),
+  ])
+  const nonce = nonceHeader.get('x-nonce') || undefined
 
   // Debug log retained (commented) for future CSP/nonce flow troubleshooting.
   // console.log('[DEBUG csp] layout nonce from x-nonce header:', nonce ? `${nonce.slice(0, 8)}...` : '(MISSING)')

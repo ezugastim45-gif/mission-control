@@ -509,7 +509,7 @@ export function SkillsPanel() {
                       {scanAll.results.warning > 0 && <span className="text-amber-400">{scanAll.results.warning} warning</span>}
                       {scanAll.results.rejected > 0 && <span className="text-rose-400">{scanAll.results.rejected} rejected</span>}
                       {scanAll.results.error > 0 && <span className="text-destructive">{scanAll.results.error} errors</span>}
-                      <span className="text-muted-foreground">— {t('skillsScanned', { count: scanAll.total })}</span>
+                      <span className="text-muted-foreground">· {t('skillsScanned', { count: scanAll.total })}</span>
                     </div>
                     <button type="button" onClick={() => setScanAll(null)} className="text-2xs text-muted-foreground/50 hover:text-foreground">{t('dismiss')}</button>
                   </div>

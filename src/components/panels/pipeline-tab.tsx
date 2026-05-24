@@ -496,7 +496,7 @@ function ActiveRunCard({ run, onAdvance, onCancel }: {
         <div className="flex items-center gap-2">
           <span className="size-2 rounded-full bg-amber-500 animate-pulse" />
           <span className="text-xs font-medium text-foreground">
-            {run.pipeline_name || `Pipeline #${run.pipeline_id}`} — Run #{run.id}
+            {run.pipeline_name || `Pipeline #${run.pipeline_id}`}, Run #{run.id}
           </span>
         </div>
         <span className="text-2xs text-muted-foreground">

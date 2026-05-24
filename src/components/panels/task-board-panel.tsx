@@ -831,7 +831,7 @@ export function TaskBoardPanel() {
               </div>
               <div className="flex-1 p-3 space-y-3">
                 {Array.from({ length: 3 - colIdx }).map((_, cardIdx) => (
-                  <div key={cardIdx} className="bg-surface-1 rounded-lg p-3 border-l-4 border-border space-y-2 animate-pulse">
+                  <div key={cardIdx} className="bg-surface-1 rounded-lg p-3 border-l border-border space-y-2 animate-pulse">
                     <div className="h-4 w-3/4 bg-surface-2 rounded" />
                     <div className="h-3 w-full bg-surface-2/60 rounded" />
                     <div className="h-3 w-1/2 bg-surface-2/40 rounded" />
@@ -1777,7 +1777,7 @@ function TaskDetailModal({
                   {reviews.map((review) => (
                     <div key={review.id} className="text-xs text-foreground/80 bg-surface-1/40 rounded p-2">
                       <div className="flex justify-between">
-                        <span>{review.reviewer} — {review.status}</span>
+                        <span>{review.reviewer}: {review.status}</span>
                         <span>{new Date(review.created_at * 1000).toLocaleString()}</span>
                       </div>
                       {review.notes && <div className="mt-1">{review.notes}</div>}

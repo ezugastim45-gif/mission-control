@@ -118,7 +118,7 @@ export function MemoryBrowserPanel() {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [searchResults, setSearchResults] = useState<{ path: string; name: string; matches: number }[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [isSearching, setIsSearching] = useState(false)
+  const isSearchingRef = useRef(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editedContent, setEditedContent] = useState('')
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -232,7 +232,7 @@ export function MemoryBrowserPanel() {
 
   const searchFiles = async () => {
     if (!searchQuery.trim()) return
-    setIsSearching(true)
+    isSearchingRef.current = true
     try {
       const response = await fetch(`/api/memory?action=search&query=${encodeURIComponent(searchQuery)}`)
       const data = await response.json()
@@ -241,7 +241,7 @@ export function MemoryBrowserPanel() {
       log.error('Search failed:', error)
       setSearchResults([])
     } finally {
-      setIsSearching(false)
+      isSearchingRef.current = false
     }
   }
 
@@ -974,7 +974,7 @@ function CreateFileModal({ onClose, onCreate }: { onClose: () => void; onCreate:
           </div>
           <div>
             <label className="block text-[11px] font-mono text-muted-foreground mb-1">{t('fileName')}</label>
-            <input type="text" value={fileName} onChange={(e) => setFileName(e.target.value)} placeholder="my-file" aria-label="File name" className="w-full px-2.5 py-1.5 text-xs font-mono bg-[hsl(var(--surface-0))] border border-border/50 rounded text-foreground focus:outline-none focus:border-primary/30" autoFocus />
+            <input type="text" value={fileName} onChange={(e) => setFileName(e.target.value)} placeholder="my-file" aria-label="File name" className="w-full px-2.5 py-1.5 text-xs font-mono bg-[hsl(var(--surface-0))] border border-border/50 rounded text-foreground focus:outline-none focus:border-primary/30" />
           </div>
           <div>
             <label className="block text-[11px] font-mono text-muted-foreground mb-1">{t('fileType')}</label>

@@ -93,36 +93,39 @@ async function buildTreeFrom(dirPath: string, relativeBase: string): Promise<Doc
 
   const settled = await Promise.allSettled(
     items
-      .filter(item => !item.isSymbolicLink())
-      .map(async (item): Promise<DocsTreeNode | null> => {
-        const fullPath = join(dirPath, item.name)
-        const relativePath = normalizeRelativePath(join(relativeBase, item.name))
-        const info = await stat(fullPath)
-        if (item.isDirectory()) {
-          const children = await buildTreeFrom(fullPath, relativePath)
-          return {
-            path: relativePath,
-            name: item.name,
-            type: 'directory',
-            modified: info.mtime.getTime(),
-            children,
-          }
-        } else if (item.isFile()) {
-          return {
-            path: relativePath,
-            name: item.name,
-            type: 'file',
-            size: info.size,
-            modified: info.mtime.getTime(),
-          }
-        }
-        return null
+      .flatMap((item): Array<Promise<DocsTreeNode | null>> => {
+        if (item.isSymbolicLink()) return []
+        return [
+          (async (): Promise<DocsTreeNode | null> => {
+            const fullPath = join(dirPath, item.name)
+            const relativePath = normalizeRelativePath(join(relativeBase, item.name))
+            const info = await stat(fullPath)
+            if (item.isDirectory()) {
+              const children = await buildTreeFrom(fullPath, relativePath)
+              return {
+                path: relativePath,
+                name: item.name,
+                type: 'directory',
+                modified: info.mtime.getTime(),
+                children,
+              }
+            } else if (item.isFile()) {
+              return {
+                path: relativePath,
+                name: item.name,
+                type: 'file',
+                size: info.size,
+                modified: info.mtime.getTime(),
+              }
+            }
+            return null
+          })(),
+        ]
       })
   )
 
   const nodes: DocsTreeNode[] = settled
-    .filter((r): r is PromiseFulfilledResult<DocsTreeNode | null> => r.status === 'fulfilled' && r.value !== null)
-    .map(r => r.value as DocsTreeNode)
+    .flatMap((r): DocsTreeNode[] => r.status === 'fulfilled' && r.value !== null ? [r.value as DocsTreeNode] : [])
 
   return nodes.sort((a, b) => {
     if (a.type !== b.type) return a.type === 'directory' ? -1 : 1
@@ -167,8 +170,10 @@ export async function readDocsContent(relativePath: string): Promise<{ content: 
   }
 
   const safePath = await resolveSafePath(baseDir, relativePath)
-  const content = await readFile(safePath, 'utf-8')
-  const info = await stat(safePath)
+  const [content, info] = await Promise.all([
+    readFile(safePath, 'utf-8'),
+    stat(safePath),
+  ])
 
   return {
     content,
@@ -220,17 +225,18 @@ export async function searchDocs(query: string, limit = 100): Promise<Array<{ pa
   const searchDir = async (fullDir: string, relativeDir: string) => {
     const items = await readdir(fullDir, { withFileTypes: true })
     await Promise.all(
-      items
-        .filter(item => !item.isSymbolicLink())
-        .map(async (item) => {
-          const itemFull = join(fullDir, item.name)
-          const itemRel = normalizeRelativePath(join(relativeDir, item.name))
-          if (item.isDirectory()) {
-            await searchDir(itemFull, itemRel)
-          } else if (item.isFile() && isSearchable(item.name.toLowerCase())) {
-            await searchFile(itemFull, itemRel)
-          }
-        })
+      items.flatMap((item) => {
+        if (item.isSymbolicLink()) return []
+        const itemFull = join(fullDir, item.name)
+        const itemRel = normalizeRelativePath(join(relativeDir, item.name))
+        return [
+          item.isDirectory()
+            ? searchDir(itemFull, itemRel)
+            : item.isFile() && isSearchable(item.name.toLowerCase())
+              ? searchFile(itemFull, itemRel)
+              : Promise.resolve(),
+        ]
+      })
     )
   }
 

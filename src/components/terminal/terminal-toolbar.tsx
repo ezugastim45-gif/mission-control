@@ -83,6 +83,7 @@ export function TerminalToolbar({
                     setConfirmingInteractive(false)
                   }}
                   className="text-[10px] text-green-400 hover:text-green-300 font-medium"
+                  aria-label="Enable interactive mode"
                 >
                   Yes
                 </button>
@@ -90,6 +91,7 @@ export function TerminalToolbar({
                   type="button"
                   onClick={() => setConfirmingInteractive(false)}
                   className="text-[10px] text-muted-foreground hover:text-foreground font-medium"
+                  aria-label="Cancel enabling interactive mode"
                 >
                   No
                 </button>
