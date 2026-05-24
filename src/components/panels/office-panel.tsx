@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useFocusTrap } from '@/lib/use-focus-trap'
 import type { MouseEvent, WheelEvent } from 'react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
@@ -524,6 +525,8 @@ export function OfficePanel() {
   const [transitioningAgentIds, setTransitioningAgentIds] = useState<Set<number>>(new Set())
   const previousSeatMapRef = useRef<Map<number, SeatPosition>>(new Map())
   const [movingWorkers, setMovingWorkers] = useState<MovingWorker[]>([])
+  const agentDetailRef = useFocusTrap(selectedAgent ? () => setSelectedAgent(null) : undefined)
+  const flightDeckRef = useFocusTrap(showFlightDeckModal ? () => setShowFlightDeckModal(false) : undefined)
 
   const fetchAgents = useCallback(async () => {
     let nextLocalAgents: Agent[] = []
@@ -2238,9 +2241,9 @@ export function OfficePanel() {
       )}
 
       {selectedAgent && (
-        <dialog open aria-modal="true" aria-label="Agent details" className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onKeyDown={(e) => { if (e.key === 'Escape') setSelectedAgent(null) }}>
+        <dialog open aria-modal="true" aria-label="Agent details" className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <button type="button" aria-label="Close agent details" className="absolute inset-0 block w-full border-0 p-0 bg-transparent cursor-default" onClick={() => setSelectedAgent(null)} />
-          <div role="presentation" className="bg-card border border-border rounded-lg max-w-sm w-full p-6 shadow-2xl" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+          <div ref={agentDetailRef} role="presentation" className="bg-card border border-border rounded-lg max-w-sm w-full p-6 shadow-2xl" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-3">
                 <div className={`size-14 rounded-full ${hashColor(selectedAgent.name)} flex items-center justify-center text-white font-bold text-lg ring-2 ring-offset-2 ring-offset-card ${selectedAgent.status === 'busy' ? 'ring-yellow-500' : selectedAgent.status === 'idle' ? 'ring-green-500' : selectedAgent.status === 'error' ? 'ring-red-500' : 'ring-gray-600'}`}>
@@ -2347,9 +2350,9 @@ export function OfficePanel() {
       )}
 
       {showFlightDeckModal && (
-        <dialog open aria-modal="true" aria-label="Flight deck setup" className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4" onKeyDown={(e) => { if (e.key === 'Escape') setShowFlightDeckModal(false) }}>
+        <dialog open aria-modal="true" aria-label="Flight deck setup" className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
           <button type="button" aria-label="Close flight deck modal" className="absolute inset-0 block w-full border-0 p-0 bg-transparent cursor-default" onClick={() => setShowFlightDeckModal(false)} />
-          <div role="presentation" className="bg-card border border-border rounded-lg max-w-md w-full p-6 shadow-2xl" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+          <div ref={flightDeckRef} role="presentation" className="bg-card border border-border rounded-lg max-w-md w-full p-6 shadow-2xl" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h3 className="text-lg font-semibold text-foreground">{t('flightDeckRequired')}</h3>
